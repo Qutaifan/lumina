@@ -1,0 +1,27 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Local/cache/secrets
+.env
+.env.*
+!.env.example
+.wrangler/
+node_modules/
+.cache/
+
+# Temporary agent/editor backups
+*.backup
+*.backup*
+*.bak
+*.bak*
+*.before_edit
+website/update_css.py
+website/index.html.backup
+website/css/style.css.backup*
+website/css/style.css.bak*
+website/css/style.css.before_edit
