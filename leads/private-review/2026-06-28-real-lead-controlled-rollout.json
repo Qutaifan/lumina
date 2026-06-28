@@ -2,8 +2,8 @@
   "run_status": "real_mode_started",
   "mode": "PRIVATE_REVIEW_ONLY_PRE_VERIFICATION",
   "leads_processed": 68,
-  "leads_selected": 5,
-  "ready_for_manual_review": 5,
+  "leads_selected": 10,
+  "ready_for_manual_review": 10,
   "website_unchanged_demo_safe": true,
   "records": [
     {
@@ -120,6 +120,131 @@
       "bathrooms": "More than 6",
       "media": {
         "source_image_count": 30,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "tracking": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "ready_for_manual_review": true
+    },
+    {
+      "lead_id": "lumina-real-review-006",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/280937370",
+      "title": "1500 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq",
+      "price_jod": 4500000,
+      "location": "Dabouq — Amman",
+      "size_sqm": 1500,
+      "land_area_sqm": 1850,
+      "bedrooms": "More than 6",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 40,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "tracking": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "ready_for_manual_review": true
+    },
+    {
+      "lead_id": "lumina-real-review-007",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/283216072",
+      "title": "2000 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq",
+      "price_jod": 4444004,
+      "location": "Dabouq — Amman",
+      "size_sqm": 2000,
+      "land_area_sqm": 2179,
+      "bedrooms": "More than 6",
+      "bathrooms": "5+",
+      "media": {
+        "source_image_count": 35,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "tracking": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "ready_for_manual_review": true
+    },
+    {
+      "lead_id": "lumina-real-review-008",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282734374",
+      "title": "1225 m2 More than 6 bedrooms Villa for Sale in Amman Abdoun",
+      "price_jod": 2500000,
+      "location": "Abdoun — Amman",
+      "size_sqm": 1225,
+      "land_area_sqm": 924,
+      "bedrooms": "More than 6",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 45,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "tracking": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "ready_for_manual_review": true
+    },
+    {
+      "lead_id": "lumina-real-review-009",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282943296",
+      "title": "1500 m2 More than 6 bedrooms Villa for Sale in Amman Abdoun",
+      "price_jod": 2250000,
+      "location": "Abdoun — Amman",
+      "size_sqm": 1500,
+      "land_area_sqm": 1150,
+      "bedrooms": "More than 6",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 30,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "tracking": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "ready_for_manual_review": true
+    },
+    {
+      "lead_id": "lumina-real-review-010",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/281789278",
+      "title": "2200 m2 More than 6 bedrooms Villa for Sale in Amman Abdoun",
+      "price_jod": 2000000,
+      "location": "Abdoun — Amman",
+      "size_sqm": 2200,
+      "land_area_sqm": 3000,
+      "bedrooms": "More than 6",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 32,
         "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
       },
       "contact_signal": "Direct phone available",

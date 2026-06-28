@@ -19,6 +19,11 @@ English: Hello, I came across your property listing and would like to discuss po
 | lumina-real-review-003 | 981 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq | Dabouq — Amman | 1100000 |  | 981 | 608 | More than 6 | 5+ | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/282727976 |
 | lumina-real-review-004 | 730 m2 5 Bedrooms Villa for Sale in Amman Abdoun | Abdoun — Amman | 1100000 |  | 730 | 500 | 5 | More than 6 | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/282647068 |
 | lumina-real-review-005 | 770 m2 5 Bedrooms Villa for Sale in Amman Dabouq | Dabouq — Amman | 925000 |  | 770 | 500 | 5 | More than 6 | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/283069224 |
+| lumina-real-review-006 | 1500 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq | Dabouq — Amman | 4500000 |  | 1500 | 1850 | More than 6 | More than 6 | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/280937370 |
+| lumina-real-review-007 | 2000 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq | Dabouq — Amman | 4444004 |  | 2000 | 2179 | More than 6 | 5+ | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/283216072 |
+| lumina-real-review-008 | 1225 m2 More than 6 bedrooms Villa for Sale in Amman Abdoun | Abdoun — Amman | 2500000 |  | 1225 | 924 | More than 6 | More than 6 | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/282734374 |
+| lumina-real-review-009 | 1500 m2 More than 6 bedrooms Villa for Sale in Amman Abdoun | Abdoun — Amman | 2250000 |  | 1500 | 1150 | More than 6 | More than 6 | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/282943296 |
+| lumina-real-review-010 | 2200 m2 More than 6 bedrooms Villa for Sale in Amman Abdoun | Abdoun — Amman | 2000000 |  | 2200 | 3000 | More than 6 | More than 6 | OpenSooq | Direct phone available |  | PRE-VERIFICATION | https://jo.opensooq.com/search/281789278 |
 
 ## Per-Lead Manual Checklist
 
@@ -121,3 +126,104 @@ Owner response tracking:
 - image_permission: false
 - publish_ready: false
 - notes: ""
+
+### lumina-real-review-006 — Dabouq — Amman
+
+- [ ] source link opens
+- [ ] property still available
+- [ ] owner/agent contact confirmed
+- [ ] permission to represent confirmed
+- [ ] permission to use images confirmed
+- [ ] price confirmed
+- [x] exact location NOT published
+- [ ] Lumina margin strategy reviewed
+
+Owner response tracking:
+
+- contacted: false
+- response_received: false
+- owner_confirmed: false
+- image_permission: false
+- publish_ready: false
+- notes: ""
+
+### lumina-real-review-007 — Dabouq — Amman
+
+- [ ] source link opens
+- [ ] property still available
+- [ ] owner/agent contact confirmed
+- [ ] permission to represent confirmed
+- [ ] permission to use images confirmed
+- [ ] price confirmed
+- [x] exact location NOT published
+- [ ] Lumina margin strategy reviewed
+
+Owner response tracking:
+
+- contacted: false
+- response_received: false
+- owner_confirmed: false
+- image_permission: false
+- publish_ready: false
+- notes: ""
+
+### lumina-real-review-008 — Abdoun — Amman
+
+- [ ] source link opens
+- [ ] property still available
+- [ ] owner/agent contact confirmed
+- [ ] permission to represent confirmed
+- [ ] permission to use images confirmed
+- [ ] price confirmed
+- [x] exact location NOT published
+- [ ] Lumina margin strategy reviewed
+
+Owner response tracking:
+
+- contacted: false
+- response_received: false
+- owner_confirmed: false
+- image_permission: false
+- publish_ready: false
+- notes: ""
+
+### lumina-real-review-009 — Abdoun — Amman
+
+- [ ] source link opens
+- [ ] property still available
+- [ ] owner/agent contact confirmed
+- [ ] permission to represent confirmed
+- [ ] permission to use images confirmed
+- [ ] price confirmed
+- [x] exact location NOT published
+- [ ] Lumina margin strategy reviewed
+
+Owner response tracking:
+
+- contacted: false
+- response_received: false
+- owner_confirmed: false
+- image_permission: false
+- publish_ready: false
+- notes: ""
+
+### lumina-real-review-010 — Abdoun — Amman
+
+- [ ] source link opens
+- [ ] property still available
+- [ ] owner/agent contact confirmed
+- [ ] permission to represent confirmed
+- [ ] permission to use images confirmed
+- [ ] price confirmed
+- [x] exact location NOT published
+- [ ] Lumina margin strategy reviewed
+
+Owner response tracking:
+
+- contacted: false
+- response_received: false
+- owner_confirmed: false
+- image_permission: false
+- publish_ready: false
+- notes: ""
+
