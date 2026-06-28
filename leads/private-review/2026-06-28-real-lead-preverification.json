@@ -1,0 +1,178 @@
+{
+  "run_status": "real_mode_started",
+  "mode": "PRIVATE_REVIEW_ONLY",
+  "leads_processed": 68,
+  "leads_selected": 5,
+  "records": [
+    {
+      "lead_id": "lumina-real-review-001",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282005650",
+      "internal_reference_title": "900 m2 5 Bedrooms Villa for Sale in Amman Abdoun",
+      "area_to_use_publicly": "Abdoun — Amman",
+      "property_type": "Villa",
+      "current_known_price_jod": 2000000,
+      "size_sqm": 900,
+      "land_area_sqm": 1100,
+      "bedrooms": "5",
+      "bathrooms": "5+",
+      "media": {
+        "source_image_count": 51,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "verification_required": [
+        "availability",
+        "owner-approved price",
+        "viewing possibility",
+        "media/photo permission",
+        "representation authority"
+      ],
+      "tracking_plan": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "classification": "READY_FOR_HUMAN_VERIFICATION",
+      "score": 5
+    },
+    {
+      "lead_id": "lumina-real-review-002",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282688184",
+      "internal_reference_title": "1050 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq",
+      "area_to_use_publicly": "Dabouq — Amman",
+      "property_type": "Villa",
+      "current_known_price_jod": 1250000,
+      "size_sqm": 1050,
+      "land_area_sqm": 700,
+      "bedrooms": "More than 6",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 30,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "verification_required": [
+        "availability",
+        "owner-approved price",
+        "viewing possibility",
+        "media/photo permission",
+        "representation authority"
+      ],
+      "tracking_plan": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "classification": "READY_FOR_HUMAN_VERIFICATION",
+      "score": 5
+    },
+    {
+      "lead_id": "lumina-real-review-003",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282727976",
+      "internal_reference_title": "981 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq",
+      "area_to_use_publicly": "Dabouq — Amman",
+      "property_type": "Villa",
+      "current_known_price_jod": 1100000,
+      "size_sqm": 981,
+      "land_area_sqm": 608,
+      "bedrooms": "More than 6",
+      "bathrooms": "5+",
+      "media": {
+        "source_image_count": 30,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "verification_required": [
+        "availability",
+        "owner-approved price",
+        "viewing possibility",
+        "media/photo permission",
+        "representation authority"
+      ],
+      "tracking_plan": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "classification": "READY_FOR_HUMAN_VERIFICATION",
+      "score": 5
+    },
+    {
+      "lead_id": "lumina-real-review-004",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282647068",
+      "internal_reference_title": "730 m2 5 Bedrooms Villa for Sale in Amman Abdoun",
+      "area_to_use_publicly": "Abdoun — Amman",
+      "property_type": "Villa",
+      "current_known_price_jod": 1100000,
+      "size_sqm": 730,
+      "land_area_sqm": 500,
+      "bedrooms": "5",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 30,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "verification_required": [
+        "availability",
+        "owner-approved price",
+        "viewing possibility",
+        "media/photo permission",
+        "representation authority"
+      ],
+      "tracking_plan": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "classification": "READY_FOR_HUMAN_VERIFICATION",
+      "score": 5
+    },
+    {
+      "lead_id": "lumina-real-review-005",
+      "status": "PRE-VERIFICATION",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/283069224",
+      "internal_reference_title": "770 m2 5 Bedrooms Villa for Sale in Amman Dabouq",
+      "area_to_use_publicly": "Dabouq — Amman",
+      "property_type": "Villa",
+      "current_known_price_jod": 925000,
+      "size_sqm": 770,
+      "land_area_sqm": 500,
+      "bedrooms": "5",
+      "bathrooms": "More than 6",
+      "media": {
+        "source_image_count": 30,
+        "status": "SOURCE_ONLY_DO_NOT_REUSE / NEEDS_PERMISSION"
+      },
+      "contact_signal": "Direct phone available",
+      "internal_note": "contact required; owner confirmation pending",
+      "manual_outreach_draft_only": "Hello, I came across your property listing and would like to discuss potential representation for premium exposure.",
+      "verification_required": [
+        "availability",
+        "owner-approved price",
+        "viewing possibility",
+        "media/photo permission",
+        "representation authority"
+      ],
+      "tracking_plan": {
+        "clicks": 0,
+        "whatsapp_intent_clicks": 0
+      },
+      "classification": "READY_FOR_HUMAN_VERIFICATION",
+      "score": 5
+    }
+  ]
+}
