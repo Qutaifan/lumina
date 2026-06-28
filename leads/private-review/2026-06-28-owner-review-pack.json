@@ -1,0 +1,208 @@
+{
+  "package_status": "PRIVATE_MANUAL_REVIEW_ONLY",
+  "source_file": "leads/private-review/2026-06-28-real-lead-controlled-rollout.json",
+  "lead_count": 5,
+  "rules": {
+    "do_not_contact_automatically": true,
+    "do_not_publish_live": true,
+    "do_not_claim_exclusivity": true,
+    "do_not_use_real_images_without_permission": true,
+    "do_not_expose_exact_address": true
+  },
+  "outreach_drafts_only": {
+    "arabic": "مرحبا، شاهدت إعلان العقار الخاص بكم وأرغب بالتواصل بخصوص إمكانية عرضه ضمن شبكة تسويق عقارية مميزة تستهدف العملاء الجادين. هل ما زال العقار متاحا؟",
+    "english": "Hello, I came across your property listing and would like to discuss potential premium exposure through a curated real estate advisory. Is the property still available?"
+  },
+  "leads": [
+    {
+      "lead_id": "lumina-real-review-001",
+      "title": "900 m2 5 Bedrooms Villa for Sale in Amman Abdoun",
+      "location_area": "Abdoun — Amman",
+      "price_jod": 2000000,
+      "property_type": null,
+      "size_sqm": 900,
+      "land_area_sqm": 1100,
+      "bedrooms": "5",
+      "bathrooms": "5+",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282005650",
+      "contact_signal": "Direct phone available",
+      "quality_score": null,
+      "manual_status": "PRE-VERIFICATION",
+      "manual_checklist": {
+        "source_link_opens": false,
+        "property_still_available": false,
+        "owner_agent_contact_confirmed": false,
+        "permission_to_represent_confirmed": false,
+        "permission_to_use_images_confirmed": false,
+        "price_confirmed": false,
+        "exact_location_not_published": true,
+        "lumina_margin_strategy_reviewed": false
+      },
+      "owner_response_tracking": {
+        "contacted": false,
+        "response_received": false,
+        "owner_confirmed": false,
+        "image_permission": false,
+        "publish_ready": false,
+        "notes": ""
+      },
+      "outreach_draft_only": {
+        "arabic": "مرحبا، شاهدت إعلان العقار الخاص بكم وأرغب بالتواصل بخصوص إمكانية عرضه ضمن شبكة تسويق عقارية مميزة تستهدف العملاء الجادين. هل ما زال العقار متاحا؟",
+        "english": "Hello, I came across your property listing and would like to discuss potential premium exposure through a curated real estate advisory. Is the property still available?"
+      }
+    },
+    {
+      "lead_id": "lumina-real-review-002",
+      "title": "1050 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq",
+      "location_area": "Dabouq — Amman",
+      "price_jod": 1250000,
+      "property_type": null,
+      "size_sqm": 1050,
+      "land_area_sqm": 700,
+      "bedrooms": "More than 6",
+      "bathrooms": "More than 6",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282688184",
+      "contact_signal": "Direct phone available",
+      "quality_score": null,
+      "manual_status": "PRE-VERIFICATION",
+      "manual_checklist": {
+        "source_link_opens": false,
+        "property_still_available": false,
+        "owner_agent_contact_confirmed": false,
+        "permission_to_represent_confirmed": false,
+        "permission_to_use_images_confirmed": false,
+        "price_confirmed": false,
+        "exact_location_not_published": true,
+        "lumina_margin_strategy_reviewed": false
+      },
+      "owner_response_tracking": {
+        "contacted": false,
+        "response_received": false,
+        "owner_confirmed": false,
+        "image_permission": false,
+        "publish_ready": false,
+        "notes": ""
+      },
+      "outreach_draft_only": {
+        "arabic": "مرحبا، شاهدت إعلان العقار الخاص بكم وأرغب بالتواصل بخصوص إمكانية عرضه ضمن شبكة تسويق عقارية مميزة تستهدف العملاء الجادين. هل ما زال العقار متاحا؟",
+        "english": "Hello, I came across your property listing and would like to discuss potential premium exposure through a curated real estate advisory. Is the property still available?"
+      }
+    },
+    {
+      "lead_id": "lumina-real-review-003",
+      "title": "981 m2 More than 6 bedrooms Villa for Sale in Amman Dabouq",
+      "location_area": "Dabouq — Amman",
+      "price_jod": 1100000,
+      "property_type": null,
+      "size_sqm": 981,
+      "land_area_sqm": 608,
+      "bedrooms": "More than 6",
+      "bathrooms": "5+",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282727976",
+      "contact_signal": "Direct phone available",
+      "quality_score": null,
+      "manual_status": "PRE-VERIFICATION",
+      "manual_checklist": {
+        "source_link_opens": false,
+        "property_still_available": false,
+        "owner_agent_contact_confirmed": false,
+        "permission_to_represent_confirmed": false,
+        "permission_to_use_images_confirmed": false,
+        "price_confirmed": false,
+        "exact_location_not_published": true,
+        "lumina_margin_strategy_reviewed": false
+      },
+      "owner_response_tracking": {
+        "contacted": false,
+        "response_received": false,
+        "owner_confirmed": false,
+        "image_permission": false,
+        "publish_ready": false,
+        "notes": ""
+      },
+      "outreach_draft_only": {
+        "arabic": "مرحبا، شاهدت إعلان العقار الخاص بكم وأرغب بالتواصل بخصوص إمكانية عرضه ضمن شبكة تسويق عقارية مميزة تستهدف العملاء الجادين. هل ما زال العقار متاحا؟",
+        "english": "Hello, I came across your property listing and would like to discuss potential premium exposure through a curated real estate advisory. Is the property still available?"
+      }
+    },
+    {
+      "lead_id": "lumina-real-review-004",
+      "title": "730 m2 5 Bedrooms Villa for Sale in Amman Abdoun",
+      "location_area": "Abdoun — Amman",
+      "price_jod": 1100000,
+      "property_type": null,
+      "size_sqm": 730,
+      "land_area_sqm": 500,
+      "bedrooms": "5",
+      "bathrooms": "More than 6",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/282647068",
+      "contact_signal": "Direct phone available",
+      "quality_score": null,
+      "manual_status": "PRE-VERIFICATION",
+      "manual_checklist": {
+        "source_link_opens": false,
+        "property_still_available": false,
+        "owner_agent_contact_confirmed": false,
+        "permission_to_represent_confirmed": false,
+        "permission_to_use_images_confirmed": false,
+        "price_confirmed": false,
+        "exact_location_not_published": true,
+        "lumina_margin_strategy_reviewed": false
+      },
+      "owner_response_tracking": {
+        "contacted": false,
+        "response_received": false,
+        "owner_confirmed": false,
+        "image_permission": false,
+        "publish_ready": false,
+        "notes": ""
+      },
+      "outreach_draft_only": {
+        "arabic": "مرحبا، شاهدت إعلان العقار الخاص بكم وأرغب بالتواصل بخصوص إمكانية عرضه ضمن شبكة تسويق عقارية مميزة تستهدف العملاء الجادين. هل ما زال العقار متاحا؟",
+        "english": "Hello, I came across your property listing and would like to discuss potential premium exposure through a curated real estate advisory. Is the property still available?"
+      }
+    },
+    {
+      "lead_id": "lumina-real-review-005",
+      "title": "770 m2 5 Bedrooms Villa for Sale in Amman Dabouq",
+      "location_area": "Dabouq — Amman",
+      "price_jod": 925000,
+      "property_type": null,
+      "size_sqm": 770,
+      "land_area_sqm": 500,
+      "bedrooms": "5",
+      "bathrooms": "More than 6",
+      "source": "OpenSooq",
+      "source_url": "https://jo.opensooq.com/search/283069224",
+      "contact_signal": "Direct phone available",
+      "quality_score": null,
+      "manual_status": "PRE-VERIFICATION",
+      "manual_checklist": {
+        "source_link_opens": false,
+        "property_still_available": false,
+        "owner_agent_contact_confirmed": false,
+        "permission_to_represent_confirmed": false,
+        "permission_to_use_images_confirmed": false,
+        "price_confirmed": false,
+        "exact_location_not_published": true,
+        "lumina_margin_strategy_reviewed": false
+      },
+      "owner_response_tracking": {
+        "contacted": false,
+        "response_received": false,
+        "owner_confirmed": false,
+        "image_permission": false,
+        "publish_ready": false,
+        "notes": ""
+      },
+      "outreach_draft_only": {
+        "arabic": "مرحبا، شاهدت إعلان العقار الخاص بكم وأرغب بالتواصل بخصوص إمكانية عرضه ضمن شبكة تسويق عقارية مميزة تستهدف العملاء الجادين. هل ما زال العقار متاحا؟",
+        "english": "Hello, I came across your property listing and would like to discuss potential premium exposure through a curated real estate advisory. Is the property still available?"
+      }
+    }
+  ]
+}
