@@ -93,6 +93,38 @@
     return (pill && pill.getAttribute('data-type')) || 'all';
   };
 
+  /* Every footer on the site links to listings.html?type=villa,
+     ?location=abdoun and so on. Nothing read those parameters, so all
+     of them landed on the unfiltered page — the links looked like
+     filters and behaved like a plain link to the portfolio. */
+  const applyUrlFilters = listings => {
+    const q = new URLSearchParams(window.location.search);
+
+    const type = (q.get('type') || '').trim().toLowerCase();
+    if (type) {
+      const pill = [...document.querySelectorAll('.type-pill')]
+        .find(p => (p.getAttribute('data-type') || '').toLowerCase() === type);
+      if (pill) {
+        document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      }
+    }
+
+    /* Match loosely: the links are slugs ("dair-ghbar", "um-uthaina")
+       while the data holds display names ("Dair Ghbar"). */
+    const loc = (q.get('location') || '').trim().toLowerCase().replace(/[-_]+/g, ' ');
+    if (loc) {
+      const sel = document.getElementById('filter-location');
+      const match = [...(sel ? sel.options : [])]
+        .find(o => o.value && o.value.toLowerCase().replace(/[-_]+/g, ' ') === loc);
+      if (sel && match) sel.value = match.value;
+    }
+
+    const budget = (q.get('budget') || '').trim();
+    const bsel = document.getElementById('filter-budget');
+    if (budget && bsel && [...bsel.options].some(o => o.value === budget)) bsel.value = budget;
+  };
+
   const applyFilters = () => {
     let list = allListings.slice();
     const type = activeType();
@@ -111,17 +143,22 @@
     const budget = budgetSel && budgetSel.value ? budgetSel.value : '';
     if (budget) {
       list = list.filter(l => {
-        const p = Number(l.price_jod_raw);
-        if (!Number.isFinite(p)) return false;
         const isRent = /rent/i.test(safeText(l.transaction));
         const isSale = /sale/i.test(safeText(l.transaction));
+        if (budget === 'for-sale') return isSale;
+
+        const p = Number(l.price_jod_raw);
+        /* A rate per m² is not comparable with an annual rent, and a
+           figure held back for review is not comparable with anything.
+           Either way it cannot answer a budget question. */
+        if (!Number.isFinite(p) || l.needs_price_review || l.price_unit === 'per_sqm') return false;
+
         switch (budget) {
-          case 'rent-under-15k': return isRent && p < 15000;
-          case 'rent-15-30k': return isRent && p >= 15000 && p <= 30000;
-          case 'rent-30k-plus': return isRent && p > 30000;
-          case 'sale-under-400k': return isSale && p < 400000;
-          case 'sale-400-800k': return isSale && p >= 400000 && p <= 800000;
-          case 'sale-800k-plus': return isSale && p > 800000;
+          case 'rent-under-10k':  return isRent && p < 10000;
+          case 'rent-10-15k':     return isRent && p >= 10000 && p < 15000;
+          case 'rent-15-20k':     return isRent && p >= 15000 && p < 20000;
+          case 'rent-20-30k':     return isRent && p >= 20000 && p < 30000;
+          case 'rent-30k-plus':   return isRent && p >= 30000;
           default: return true;
         }
       });
@@ -132,13 +169,21 @@
   const populateLocations = listings => {
     const sel = document.getElementById('filter-location');
     if (!sel) return;
-    const locs = [...new Set(listings.map(l => safeText(l.location).trim()).filter(Boolean))].sort();
+    /* Count as we go, so the filter says how much is behind each option
+       rather than offering an area with one listing as an equal choice. */
+    const counts = new Map();
+    listings.forEach(l => {
+      const k = safeText(l.location).trim();
+      if (k) counts.set(k, (counts.get(k) || 0) + 1);
+    });
+    const locs = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
     const current = sel.value;
-    sel.innerHTML = '<option value="">All Locations</option>';
-    locs.forEach(loc => {
+    sel.innerHTML = '<option value="">All areas</option>';
+    locs.forEach(([loc, n]) => {
       const opt = document.createElement('option');
       opt.value = loc;
-      opt.textContent = loc;
+      opt.textContent = `${loc} (${n})`;
       sel.appendChild(opt);
     });
     if (current) sel.value = current;
@@ -156,6 +201,9 @@
         if (!Array.isArray(data)) throw new Error('Data is not an array');
         allListings = data;
         populateLocations(data);
+        /* After populateLocations, so the location option a deep link
+           asks for exists to be selected. */
+        applyUrlFilters(data);
         applyFilters();
       })
       .catch(err => showFallback(err.message));

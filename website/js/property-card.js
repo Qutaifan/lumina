@@ -56,14 +56,25 @@
     return n || Number(listing.photo_count) || 0;
   };
 
+  /* Seven 4th Circle records quote a rate per square metre, not a total
+     — 885 JOD for a 260 m² apartment. Computing a total would be
+     inventing a figure, so `price_unit` marks them and they render as
+     what they are, which is how Amman new-build sales are quoted. */
   const formatPrice = listing => {
+    /* Five rents sit in the 500–1,200 band while every other rent here
+       runs 6,000–120,000 — monthly figures among annual ones. Until the
+       period is confirmed, showing nothing beats showing a number that
+       may be wrong by a factor of twelve. */
+    if (listing.needs_price_review) return 'Price on request';
     const raw = listing.price_jod_test_margin != null
       ? listing.price_jod_test_margin : listing.price_jod_raw;
     const amount = Number(raw);
     if (!Number.isFinite(amount)) return 'Price on request';
+    const unit = listing.price_unit === 'per_sqm' ? ' JOD/m²' : ' JOD';
     const tx = text(listing.transaction).trim();
-    return `${amount.toLocaleString('en-US')} JOD${tx ? ' · ' + tx : ''}`;
+    return `${amount.toLocaleString('en-US')}${unit}${tx ? ' · ' + tx : ''}`;
   };
+  Lumina.formatPrice = formatPrice;
 
   const CAMERA =
     `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
@@ -130,13 +141,27 @@
 
     const media = document.createElement('div');
     media.className = 'card-media';
-    const img = document.createElement('img');
-    img.src = coverOf(listing);
-    img.alt = `${text(listing.title) || 'Property'} — ${text(listing.location || listing.location_area) || 'Amman'}`;
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.addEventListener('error', () => { img.src = PLACEHOLDER; }, { once: true });
-    media.appendChild(img);
+
+    /* Twelve records have no photography. Filling the frame with the
+       stock villa shows a building that is not the one being sold —
+       every other asset on this site is the client's own, and a
+       stand-in read as a real photograph is worse than an empty frame
+       that says so. */
+    if (shotCount(listing) < 1) {
+      media.classList.add('no-photo');
+      const note = document.createElement('span');
+      note.className = 'no-photo-note';
+      note.textContent = 'Photography on request';
+      media.appendChild(note);
+    } else {
+      const img = document.createElement('img');
+      img.src = coverOf(listing);
+      img.alt = `${text(listing.title) || 'Property'} — ${text(listing.location || listing.location_area) || 'Amman'}`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('error', () => { img.src = PLACEHOLDER; }, { once: true });
+      media.appendChild(img);
+    }
 
     const where = text(listing.location || listing.location_area).trim();
     if (where) {

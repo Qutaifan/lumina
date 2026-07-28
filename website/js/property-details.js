@@ -273,7 +273,14 @@
     const priceVal = listing.price_jod_test_margin != null
       ? listing.price_jod_test_margin
       : listing.price_jod_raw;
-    const priceLabel = money(priceVal);
+    /* Some 4th Circle records quote a rate per square metre rather than
+       a total; `price_unit` marks them so the figure is not read as an
+       asking price. */
+    const priceLabel = listing.needs_price_review
+      ? 'Price on request'
+      : listing.price_unit === 'per_sqm'
+        ? money(priceVal).replace(/ JOD$/, ' JOD/m²')
+        : money(priceVal);
     const tx = t(listing.transaction);
     const priceLine = tx ? `${priceLabel} · ${tx}` : priceLabel;
 

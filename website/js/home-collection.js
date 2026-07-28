@@ -15,13 +15,44 @@
   const DATA_URL = 'data/lumina-demo-leads.json';
   const FEATURED = 6;
 
+  /* This used to be "every sale listing first, then the rest". That made
+     sense when sales were the rare premium end, but the sale records are
+     now the weakest on the site — several quote a rate per m² rather
+     than a price, and four of them share the title "4th Circle Apartment
+     for Sale". The shop window was three copies of the same card.
+     Pick for variety and photography instead. */
   const pickFeatured = listings => {
-    const withPhotos = listings.filter(l => (l.photo_count || 0) > 0 && l.image_url);
-    const pool = withPhotos.length ? withPhotos : listings;
-    // Prefer variety: sale first, then rent; keep ref order otherwise
-    const sale = pool.filter(l => /sale/i.test(l.transaction || ''));
-    const rest = pool.filter(l => !/sale/i.test(l.transaction || ''));
-    return [...sale, ...rest].slice(0, FEATURED);
+    const ok = listings.filter(l =>
+      (l.photo_count || 0) > 0 && l.image_url &&
+      !l.needs_price_review && l.price_unit !== 'per_sqm');
+    const pool = ok.length >= FEATURED ? ok : listings.filter(l => (l.photo_count || 0) > 0);
+
+    const score = l =>
+      (Number(l.photo_count) || 0) +
+      (Number(l.size_sqm) > 0 ? 3 : 0) +
+      (l.bedrooms ? 2 : 0) +
+      (/villa|rooftop/i.test(l.property_type || '') ? 4 : 0);
+
+    const ranked = [...pool].sort((a, b) => score(b) - score(a));
+
+    /* One per title and one per area first, so six cards read as six
+       properties rather than one property photographed six times. */
+    const out = [], titles = new Set(), areas = new Set();
+    for (const l of ranked) {
+      if (out.length >= FEATURED) break;
+      const t = String(l.title || '').toLowerCase();
+      const a = String(l.location || '').toLowerCase();
+      if (titles.has(t) || areas.has(a)) continue;
+      titles.add(t); areas.add(a); out.push(l);
+    }
+    // relax the area rule if the portfolio is concentrated enough to need it
+    for (const l of ranked) {
+      if (out.length >= FEATURED) break;
+      const t = String(l.title || '').toLowerCase();
+      if (titles.has(t)) continue;
+      titles.add(t); out.push(l);
+    }
+    return out.slice(0, FEATURED);
   };
 
   fetch(DATA_URL)

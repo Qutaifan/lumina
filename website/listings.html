@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Luxury Properties in Amman — Lumina Real Estate</title>
-  <meta name="description" content="Browse curated luxury apartments, villas, and penthouses in Amman's most prestigious neighbourhoods — Abdoun, Dabouq, Dair Ghbar, Um Uthaina, and Abdali. Private viewings by appointment." />
+  <meta name="description" content="Every residence Lumina currently holds in Amman — Abdoun, Swefieh, the Circles, Shmesani, Jabal Al Weibdeh, Um Uthaina and Dair Ghbar. Filter by area, type and budget." />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Lumina Real Estate" />
   <meta name="theme-color" content="#0D1B2A" />
@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://lumina.qutaifan.com/listings.html" />
   <meta property="og:site_name" content="Lumina Real Estate" />
   <meta property="og:title" content="Luxury Properties in Amman — Lumina Real Estate" />
-  <meta property="og:description" content="Curated luxury apartments, villas, and penthouses in Abdoun, Dabouq, Dair Ghbar, Um Uthaina, and Abdali. Private viewings by appointment." />
+  <meta property="og:description" content="Every residence Lumina currently holds in Amman — Abdoun, Swefieh, the Circles, Shmesani, Jabal Al Weibdeh, Um Uthaina and Dair Ghbar. Filter by area, type and budget." />
   <meta property="og:image" content="https://lumina.qutaifan.com/assets/images/hero-luxury-villa.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -24,13 +24,13 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Luxury Properties in Amman — Lumina Real Estate" />
-  <meta name="twitter:description" content="Curated luxury apartments, villas, and penthouses in Abdoun, Dabouq, Dair Ghbar, Um Uthaina, and Abdali." />
+  <meta name="twitter:description" content="Every residence Lumina currently holds in Amman — Abdoun, Swefieh, the Circles, Shmesani, Jabal Al Weibdeh, Um Uthaina and Dair Ghbar. Filter by area, type and budget." />
   <meta name="twitter:image" content="https://lumina.qutaifan.com/assets/images/hero-luxury-villa.jpg" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/lumina-logo.png" />
 
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=2026-07-28b" />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSerif.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSans.woff2" crossorigin>
   <style>
@@ -291,7 +291,7 @@
   <!-- After the inline block on purpose: .grid-props and .listings-grid
        are the same specificity, so source order decides, and the shared
        component has to win. Same file index.html loads. -->
-  <link rel="stylesheet" href="css/property-ui.css" />
+  <link rel="stylesheet" href="css/property-ui.css?v=2026-07-28b" />
 </head>
 <body>
 
@@ -300,9 +300,10 @@
   <a href="index.html" class="nav-logo" aria-label="Lumina — home"><img src="assets/lumina-logo.png" alt="Lumina" width="669" height="181"></a>
   <div class="nav-links">
     <a href="listings.html" class="active-link">Properties</a>
-    <a href="index.html#hoods">Locations</a>
-    <a href="index.html#advisory">About</a>
-    <a href="index.html#contact" class="nav-cta btn">Inquire Now</a>
+    <a href="areas-abdoun.html">Areas</a>
+    <a href="insights/best-areas-in-amman.html">Insights</a>
+    <a href="pages/list-property.html">Sell With Us</a>
+    <a href="index.html#contact" class="nav-cta btn">Enquire</a>
   </div>
 </nav>
 
@@ -310,10 +311,10 @@
 <div class="page-header">
   <div class="page-header-bg"></div>
   <div class="container page-header-inner">
-    <p class="label">Private Portfolio</p>
+    <p class="label">Available now</p>
     <span class="gold-line"></span>
-    <h1>The Collection</h1>
-    <p>Real inventory from the Lumina portfolio — each listing matched to its reference photos. Particulars shared privately, by appointment.</p>
+    <h1>Every residence we hold.</h1>
+    <p>Filter by area, type or budget. Open any property to page through its photographs — most have a dozen. Availability and the final figure are confirmed with the owner before a viewing is arranged.</p>
   </div>
 </div>
 
@@ -332,25 +333,26 @@
         <button class="type-pill" data-type="residential">Residential</button>
       </div>
 
-      <!-- Location select -->
-      <select class="filter-select" id="filter-location">
-        <option value="">All Locations</option>
-        <option>Abdoun</option>
-        <option>Dabouq</option>
-        <option>Dair Ghbar</option>
-        <option>Um Uthaina</option>
-        <option>Abdali</option>
+      <!-- Location select. Rebuilt from the data on load by listings.js —
+           the hard-coded list here was Abdoun / Dabouq / Dair Ghbar /
+           Um Uthaina / Abdali, and three of those five have never had a
+           single listing. -->
+      <select class="filter-select" id="filter-location" aria-label="Filter by area">
+        <option value="">All areas</option>
       </select>
 
-      <!-- Budget select -->
-      <select class="filter-select" id="filter-budget">
-        <option value="">Any Budget</option>
-        <option value="rent-under-15k">Rent under 15k JOD</option>
-        <option value="rent-15-30k">Rent 15k – 30k JOD</option>
-        <option value="rent-30k-plus">Rent 30k+ JOD</option>
-        <option value="sale-under-400k">Sale under 400k JOD</option>
-        <option value="sale-400-800k">Sale 400k – 800k JOD</option>
-        <option value="sale-800k-plus">Sale 800k+ JOD</option>
+      <!-- Budget bands sized to the actual spread: rents run 6,000 to
+           120,000 JOD a year and cluster at 10–20k. The previous sale
+           bands (under 400k / 400–800k / 800k+) matched two listings
+           between them, so sales are now one option rather than three. -->
+      <select class="filter-select" id="filter-budget" aria-label="Filter by budget">
+        <option value="">Any budget</option>
+        <option value="rent-under-10k">Rent · under 10,000 JOD</option>
+        <option value="rent-10-15k">Rent · 10,000 – 15,000 JOD</option>
+        <option value="rent-15-20k">Rent · 15,000 – 20,000 JOD</option>
+        <option value="rent-20-30k">Rent · 20,000 – 30,000 JOD</option>
+        <option value="rent-30k-plus">Rent · 30,000 JOD and above</option>
+        <option value="for-sale">For sale</option>
       </select>
 
       <div class="filter-count">Showing <span id="listing-count">0</span> properties</div>
@@ -361,11 +363,11 @@
 <!-- LISTINGS GRID -->
 <section class="listings-section">
   <div class="container">
-    <p class="demo-disclaimer demo-disclaimer-wide">Lumina portfolio listings. Availability, final pricing, and access require verification before viewing. Photos are matched by reference number from the source files.</p>
+    <p class="demo-disclaimer demo-disclaimer-wide">Photographs are the owner's and are shown with permission. Availability and the final figure are confirmed before a viewing is arranged — a few of these will already be gone.</p>
     <div class="listings-grid grid-props" id="listings-grid" aria-live="polite"></div>
 
     <div class="load-more-wrap">
-      <a href="index.html#contact" class="btn btn-outline-gold">Request Off-Market Listings</a>
+      <a href="index.html#contact" class="btn btn-outline-gold">Ask about something not listed here</a>
     </div>
   </div>
 </section>
@@ -376,55 +378,60 @@
     <div class="footer-grid">
       <div>
         <div class="footer-logo"><img src="assets/lumina-logo.png" alt="Lumina" width="669" height="181"></div>
-        <p class="footer-desc">Luxury real estate in Amman's most prestigious addresses. Exceptional properties, presented with discretion.</p>
+        <p class="footer-desc">A private property advisory in Amman. We represent a small number of residences at a time and introduce them quietly.</p>
       </div>
       <div class="footer-col">
-        <h4>Properties</h4>
+        <h4>Browse</h4>
         <ul>
+          <!-- These carry real filters now; nothing read the query string
+               before, so every one of them landed on the unfiltered page.
+               "Penthouses" and "Investment" are gone — no listing has ever
+               matched either. -->
           <li><a href="listings.html?type=apartment">Apartments</a></li>
           <li><a href="listings.html?type=villa">Villas</a></li>
-          <li><a href="listings.html?type=penthouse">Penthouses</a></li>
-          <li><a href="listings.html?type=investment">Investment</a></li>
+          <li><a href="listings.html?type=rooftop">Rooftops</a></li>
+          <li><a href="listings.html?budget=for-sale">For sale</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Locations</h4>
+        <h4>Areas</h4>
         <ul>
-          <li><a href="listings.html?location=abdoun">Abdoun</a></li>
-          <li><a href="listings.html?location=dabouq">Dabouq</a></li>
-          <li><a href="listings.html?location=dair-ghbar">Dair Ghbar</a></li>
-          <li><a href="listings.html?location=um-uthaina">Um Uthaina</a></li>
-          <li><a href="listings.html?location=abdali">Abdali</a></li>
+          <li><a href="listings.html?location=Abdoun">Abdoun</a></li>
+          <li><a href="listings.html?location=Swefieh">Swefieh</a></li>
+          <li><a href="listings.html?location=Shmesani">Shmesani</a></li>
+          <li><a href="listings.html?location=Um%20Uthaina">Um Uthaina</a></li>
+          <li><a href="areas-abdoun.html">All area guides</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Contact</h4>
+        <h4>Lumina</h4>
         <ul>
-          <li><a href="https://wa.me/9627XXXXXXXX" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-          <li><a href="mailto:lumina@qutaifan.com">Email</a></li>
-          <li><span>+962 7X XXX XXXX</span></li>
+          <li><a href="pages/list-property.html">Sell with us</a></li>
+          <li><a href="pages/valuation.html">Request a valuation</a></li>
+          <li><a href="https://wa.me/962771505250" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+          <li><span>+962 77 150 5250</span></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Lumina Luxury Real Estate. All rights reserved.</span>
-      <span>Amman, Jordan</span>
+      <span>© 2026 Lumina Real Estate Advisory · Amman</span>
+      <span>Particulars confirmed with the owner before viewing</span>
     </div>
   </div>
 </footer>
 
 <!-- WHATSAPP FLOAT -->
-<a href="https://wa.me/962000000000?text=Hello%2C%20I%20am%20interested%20in%20luxury%20properties%20in%20Amman." class="whatsapp-float advisor-float" target="_blank" rel="noopener noreferrer" aria-label="Contact Advisor on WhatsApp">
+<a href="https://wa.me/962771505250?text=Hello%20Lumina%20%E2%80%94%20I%20am%20looking%20at%20your%20available%20properties%20in%20Amman." class="whatsapp-float advisor-float" target="_blank" rel="noopener noreferrer" aria-label="Contact Lumina on WhatsApp">
   <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   <span>Contact Advisor</span>
 </a>
 
-<script src="js/site.js"></script>
+<script src="js/site.js?v=2026-07-28b"></script>
 <!-- order matters: the card builder asks the viewer to open, and
      listings.js asks the builder to build -->
-<script src="js/property-viewer.js"></script>
-<script src="js/property-card.js"></script>
-<script src="js/listings.js"></script>
+<script src="js/property-viewer.js?v=2026-07-28b"></script>
+<script src="js/property-card.js?v=2026-07-28b"></script>
+<script src="js/listings.js?v=2026-07-28b"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -434,7 +441,7 @@
       "@id": "https://lumina.qutaifan.com/listings.html#webpage",
       "url": "https://lumina.qutaifan.com/listings.html",
       "name": "Luxury Properties in Amman — Lumina Real Estate",
-      "description": "Curated luxury apartments, villas, and penthouses in Abdoun, Dabouq, Dair Ghbar, Um Uthaina, and Abdali. Private viewings by appointment.",
+      "description": "Every residence Lumina currently holds in Amman — Abdoun, Swefieh, the Circles, Shmesani, Jabal Al Weibdeh, Um Uthaina and Dair Ghbar. Filter by area, type and budget.",
       "isPartOf": { "@id": "https://lumina.qutaifan.com/#website" },
       "inLanguage": "en",
       "breadcrumb": {
@@ -448,9 +455,9 @@
     {
       "@type": "ItemList",
       "name": "Luxury Properties in Amman",
-      "description": "Curated luxury residences presented by Lumina Real Estate in Amman, Jordan.",
+      "description": "Residences currently available through Lumina in Amman, Jordan.",
       "url": "https://lumina.qutaifan.com/listings.html",
-      "numberOfItems": 7,
+      "numberOfItems": 113,
       "itemListOrder": "https://schema.org/ItemListOrderDescending"
     }
   ]

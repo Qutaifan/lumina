@@ -190,13 +190,20 @@
     els.kicker.textContent = bits.join(' · ');
     els.title.textContent = listing.title || 'Residence';
 
-    const raw = listing.price_jod_test_margin != null
-      ? listing.price_jod_test_margin : listing.price_jod_raw;
-    const amount = Number(raw);
-    const tx = String(listing.transaction || '').trim();
-    els.price.textContent = Number.isFinite(amount)
-      ? `${amount.toLocaleString('en-US')} JOD${tx ? ' · ' + tx : ''}`
-      : 'Price on request';
+    /* property-card.js owns the formatting, including the per-m² rates
+       — one implementation, so the card and the gallery can never
+       disagree about the same listing's price. */
+    if (typeof Lumina.formatPrice === 'function') {
+      els.price.textContent = Lumina.formatPrice(listing);
+    } else {
+      const raw = listing.price_jod_test_margin != null
+        ? listing.price_jod_test_margin : listing.price_jod_raw;
+      const amount = Number(raw);
+      const tx = String(listing.transaction || '').trim();
+      els.price.textContent = Number.isFinite(amount)
+        ? `${amount.toLocaleString('en-US')} JOD${tx ? ' · ' + tx : ''}`
+        : 'Price on request';
+    }
     els.more.href = `property-details.html?id=${encodeURIComponent(listing.id)}`;
 
     /* Optional WhatsApp route. The listings page passes one so the
