@@ -31,6 +31,8 @@
   <link rel="icon" type="image/png" href="assets/lumina-logo.png" />
 
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSerif.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSans.woff2" crossorigin>
   <style>
     /* ---- PAGE HEADER ---- */
     .page-header {
@@ -201,130 +203,10 @@
     }
     .card-link:hover .card-link-arrow { width: 36px; }
 
-    .listing-card {
-      background: #111111;
-      border: 1px solid rgba(198,167,110,0.14);
-      border-radius: 14px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(22px);
-      transition: all 0.3s ease;
-      animation: listingFadeUp 0.65s ease forwards;
-    }
-    .listing-card:hover {
-      transform: translateY(-6px) !important;
-      border-color: rgba(198,167,110,0.34);
-      box-shadow: 0 16px 52px rgba(0,0,0,0.62);
-    }
-    .listing-card:hover .card-img img { transform: scale(1.05); }
-    .listing-image { background: #181818; }
-    .listing-content {
-      padding: 26px 26px 24px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-    .listing-content h3 {
-      font-family: var(--font-sans);
-      font-size: clamp(18px, 1.4vw, 22px);
-      font-weight: 600;
-      line-height: 1.35;
-      margin-bottom: 10px;
-      color: #FFFFFF;
-    }
-    .listing-content .location {
-      font-size: 0.7rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #A0A0A0;
-      margin-bottom: 18px;
-    }
-    .listing-content .price {
-      font-family: var(--font-sans);
-      font-size: clamp(1.45rem, 2vw, 1.9rem);
-      font-weight: 600;
-      color: #C6A76E;
-      margin-bottom: 18px;
-      line-height: 1.25;
-    }
-    .listing-content .details {
-      font-size: 0.84rem;
-      letter-spacing: 0.05em;
-      color: #A0A0A0;
-      margin: 0 0 24px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    .listing-content .card-link {
-      width: fit-content;
-      margin-top: auto;
-      padding: 12px 18px;
-      border: 1px solid #C6A76E;
-      border-radius: 999px;
-      background: transparent;
-      color: #C6A76E;
-      font-size: 0.66rem;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      transition: all 0.3s ease;
-    }
-    .listing-content .card-link:hover {
-      background: #C6A76E;
-      color: #0B0B0B;
-    }
-    .listing-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: auto;
-    }
-    .listing-whatsapp {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 12px 18px;
-      border: 1px solid #C6A76E;
-      border-radius: 999px;
-      font-size: 0.66rem;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      line-height: 1;
-      text-align: center;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
-    .listing-whatsapp-primary {
-      background: #C6A76E;
-      color: #0B0B0B;
-    }
-    .listing-whatsapp-primary:hover {
-      background: #FFFFFF;
-      border-color: #FFFFFF;
-      color: #0B0B0B;
-    }
-    .listing-whatsapp-secondary {
-      background: transparent;
-      color: #C6A76E;
-    }
-    .listing-whatsapp-secondary:hover {
-      background: #C6A76E;
-      color: #0B0B0B;
-    }
-    .listing-content .status {
-      margin-top: 22px;
-      color: #A0A0A0;
-      font-size: 0.64rem;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      line-height: 1.6;
-    }
+    /* The flat .listing-card and its whole sub-tree were replaced by the
+       shared floating card in css/property-ui.css — see js/listings.js.
+       Only .listing-error survives, since the empty and failure states
+       still render it. */
     .listing-error {
       grid-column: 1 / -1;
       padding: 44px;
@@ -332,29 +214,6 @@
       background: #111111;
       text-align: center;
       color: #A0A0A0;
-    }
-
-    @keyframes listingFadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .delay-0 { animation-delay: 0s; }
-    .delay-1 { animation-delay: 0.05s; }
-    .delay-2 { animation-delay: 0.1s; }
-    .delay-3 { animation-delay: 0.15s; }
-    .delay-4 { animation-delay: 0.2s; }
-    .delay-5 { animation-delay: 0.25s; }
-    .delay-6 { animation-delay: 0.3s; }
-    .delay-7 { animation-delay: 0.35s; }
-    .delay-8 { animation-delay: 0.4s; }
-    .delay-9 { animation-delay: 0.45s; }
-    @media (prefers-reduced-motion: reduce) {
-      .listing-card {
-        opacity: 1;
-        transform: none;
-        animation: none;
-      }
-      .listing-card:hover { transform: none !important; }
-      .listing-card:hover .card-img img { transform: none; }
     }
 
     /* ---- FEATURED LARGE CARD ---- */
@@ -428,6 +287,11 @@
       }
     }
   </style>
+
+  <!-- After the inline block on purpose: .grid-props and .listings-grid
+       are the same specificity, so source order decides, and the shared
+       component has to win. Same file index.html loads. -->
+  <link rel="stylesheet" href="css/property-ui.css" />
 </head>
 <body>
 
@@ -498,7 +362,7 @@
 <section class="listings-section">
   <div class="container">
     <p class="demo-disclaimer demo-disclaimer-wide">Lumina portfolio listings. Availability, final pricing, and access require verification before viewing. Photos are matched by reference number from the source files.</p>
-    <div class="listings-grid" id="listings-grid" aria-live="polite"></div>
+    <div class="listings-grid grid-props" id="listings-grid" aria-live="polite"></div>
 
     <div class="load-more-wrap">
       <a href="index.html#contact" class="btn btn-outline-gold">Request Off-Market Listings</a>
@@ -556,6 +420,10 @@
 </a>
 
 <script src="js/site.js"></script>
+<!-- order matters: the card builder asks the viewer to open, and
+     listings.js asks the builder to build -->
+<script src="js/property-viewer.js"></script>
+<script src="js/property-card.js"></script>
 <script src="js/listings.js"></script>
 <script type="application/ld+json">
 {

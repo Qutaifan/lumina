@@ -6,10 +6,13 @@
 
   // --- Centralized Contact Details ---
   // Modify these values to update contact information across the entire website instantly.
+  // 962791234567 / +962 7 9123 4567 sat here as a placeholder and was
+  // rewriting every wa.me link on these pages to a number that is not
+  // the business's. index.html has always used the real one directly.
   window.LuminaConfig = {
-    whatsapp: '962791234567',   // Business WhatsApp number (numbers only, no spaces or '+' symbol)
-    phone: '+962 7 9123 4567',  // Customer-facing phone display format
-    email: 'info@qutaifan.com'  // Contact email address
+    whatsapp: '962771505250',   // Business WhatsApp number (numbers only, no spaces or '+' symbol)
+    phone: '+962 77 150 5250',  // Customer-facing phone display format
+    email: 'info@qutaifan.com'  // Contact email address — still a placeholder
   };
 
   // --- Dynamic Contact Placeholder Substitution ---

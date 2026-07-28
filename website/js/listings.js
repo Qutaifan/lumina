@@ -6,22 +6,11 @@
 
   const grid = document.getElementById('listings-grid');
   const count = document.getElementById('listing-count');
-  const placeholderImage = '/assets/images/hero-luxury-villa.jpg';
   const whatsappNumber = (window.LuminaConfig && window.LuminaConfig.whatsapp) || '962771505250';
 
   let allListings = [];
 
-  const formatPrice = value => {
-    const amount = Number(value);
-    return Number.isFinite(amount) ? `${amount.toLocaleString('en-US')} JOD` : 'Price on request';
-  };
-
   const safeText = value => (value === null || value === undefined) ? '' : String(value);
-
-  const imagePath = value => {
-    const src = safeText(value).trim();
-    return src || placeholderImage;
-  };
 
   const whatsappUrl = message => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
@@ -45,93 +34,33 @@
     'Please contact me.'
   ].filter(Boolean).join('\n');
 
-  const createWhatsAppButton = (listing, label, message, className) => {
-    const button = document.createElement('a');
-    button.href = whatsappUrl(message);
-    button.className = `listing-whatsapp ${className}`;
-    button.target = '_blank';
-    button.rel = 'noopener noreferrer';
-    button.textContent = label;
-    return button;
-  };
-
+  /* The card itself comes from js/property-card.js, the same builder the
+     landing page uses — that is the only way the two grids stay
+     identical. What is page-specific is passed in: the listings page
+     keeps its two WhatsApp routes, which the home grid does not have. */
   const createListingCard = (listing, index) => {
-    const card = document.createElement('div');
-    card.className = `listing-card property-card demo-card delay-${index % 10}`;
-
-    const imageWrap = document.createElement('div');
-    imageWrap.className = 'card-img listing-image';
-
-    const img = document.createElement('img');
-    img.src = imagePath(listing.image_url);
-    img.alt = `${safeText(listing.title) || 'Lumina listing'} — ${safeText(listing.location_area) || 'Jordan'}`;
-    img.loading = 'lazy';
-    img.addEventListener('error', () => {
-      img.src = placeholderImage;
-    }, { once: true });
-
-    const badge = document.createElement('span');
-    badge.className = 'card-badge';
-    badge.textContent = listing.ref ? `Ref ${safeText(listing.ref)}` : 'Portfolio';
-
-    imageWrap.append(img, badge);
-
-    const content = document.createElement('div');
-    content.className = 'listing-content';
-
-    const title = document.createElement('h3');
-    title.textContent = safeText(listing.title);
-
-    const location = document.createElement('p');
-    location.className = 'location';
-    location.textContent = safeText(listing.location_area);
-
-    const price = document.createElement('p');
-    price.className = 'price';
-    const priceValue = listing.price_jod_test_margin != null ? listing.price_jod_test_margin : listing.price_jod_raw;
-    const tx = safeText(listing.transaction);
-    price.textContent = priceValue != null
-      ? `${formatPrice(priceValue)}${tx ? ` · ${tx}` : ''}`
-      : 'Price on request';
-
-    const details = document.createElement('p');
-    details.className = 'details';
-    const detailParts = [];
-    if (listing.property_type) detailParts.push(safeText(listing.property_type));
-    if (listing.bedrooms) detailParts.push(`${safeText(listing.bedrooms)} Beds`);
-    if (listing.bathrooms) detailParts.push(`${safeText(listing.bathrooms)} Baths`);
-    if (listing.size_sqm) detailParts.push(`${Number(listing.size_sqm).toLocaleString('en-US')} sqm`);
-    if (listing.photo_count) detailParts.push(`${listing.photo_count} photos`);
-    details.textContent = detailParts.join(' · ');
-
-    const propertyLink = document.createElement('a');
-    propertyLink.href = `property-details.html?id=${encodeURIComponent(safeText(listing.id))}`;
-    propertyLink.className = 'listing-whatsapp listing-whatsapp-secondary';
-    propertyLink.textContent = 'View Property';
-
-    const actions = document.createElement('div');
-    actions.className = 'listing-actions';
-    actions.append(
-      createWhatsAppButton(listing, 'Request Details', listingMessage(listing), 'listing-whatsapp-primary'),
-      createWhatsAppButton(listing, 'Schedule Viewing', viewingMessage(listing), 'listing-whatsapp-secondary'),
-      propertyLink
-    );
-
-    const status = document.createElement('p');
-    status.className = 'status';
-    status.textContent = listing.status
-      ? safeText(listing.status)
-      : 'Lumina portfolio — final particulars on request';
-
-    content.append(title, location, price);
-    if (detailParts.length) content.appendChild(details);
-    content.append(actions, status);
-    card.append(imageWrap, content);
-    return card;
+    /* The gallery carries the enquiry route too, so a viewer opened
+       from a card is not a dead end. */
+    listing.__askUrl = whatsappUrl(listingMessage(listing));
+    return window.Lumina.buildPropertyCard(listing, index, {
+      /* No `wide` card here. The home grid features one; on a 124-card
+         portfolio a double-width item just breaks the rhythm. */
+      wide: false,
+      /* Stagger reads as intentional across six cards. Across 124 it
+         reads as a page that will not finish loading. */
+      stagger: false,
+      actions: [
+        { label: 'Request Details',  href: whatsappUrl(listingMessage(listing)), primary: true },
+        { label: 'Schedule Viewing', href: whatsappUrl(viewingMessage(listing)) },
+      ],
+    });
   };
 
   const renderListings = listings => {
     try {
+      if (typeof (window.Lumina && window.Lumina.buildPropertyCard) !== 'function') {
+        throw new Error('property-card.js did not load');
+      }
       if (!listings.length) {
         const empty = document.createElement('div');
         empty.className = 'listing-error';
@@ -139,6 +68,9 @@
         grid.replaceChildren(empty);
       } else {
         grid.replaceChildren(...listings.map(createListingCard));
+        /* Filtering replaces the whole grid, so reveal and tilt have to
+           be re-bound every render, not just on first paint. */
+        window.Lumina.activateCards(grid);
       }
       if (count) count.textContent = String(listings.length);
     } catch (err) {
@@ -213,7 +145,9 @@
   };
 
   if (grid) {
-    fetch('/data/lumina-demo-leads.json')
+    /* Relative, not root-absolute: a GitHub Pages project deploy serves
+       this from /lumina/, where a leading slash 404s. */
+    fetch('data/lumina-demo-leads.json')
       .then(response => {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.json();

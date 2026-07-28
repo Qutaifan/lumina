@@ -7,7 +7,7 @@
   const root = document.getElementById('property-root');
   if (!root) return;
 
-  const PLACEHOLDER = '/assets/images/hero-luxury-villa.jpg';
+  const PLACEHOLDER = 'assets/images/hero-luxury-villa.jpg';
   const WHATSAPP = (window.LuminaConfig && window.LuminaConfig.whatsapp) || '962771505250';
 
   const t = v => (v == null ? '' : String(v));
@@ -15,9 +15,13 @@
     const n = Number(v);
     return Number.isFinite(n) ? `${n.toLocaleString('en-US')} JOD` : 'Price on request';
   };
+  /* Paths in the JSON are root-absolute, which 404s the moment the site
+     is served from anything but a domain root — which is exactly what a
+     GitHub Pages project deploy is. */
   const img = v => {
     const s = t(v).trim();
-    return s || PLACEHOLDER;
+    if (!s) return PLACEHOLDER;
+    return s.startsWith('/') ? s.slice(1) : s;
   };
 
   const waLink = listing => {
@@ -332,7 +336,7 @@
     return;
   }
 
-  fetch('/data/lumina-demo-leads.json')
+  fetch('data/lumina-demo-leads.json')
     .then(r => (r.ok ? r.json() : Promise.reject()))
     .then(data => {
       const listing = Array.isArray(data) ? data.find(item => item.id === id) : null;

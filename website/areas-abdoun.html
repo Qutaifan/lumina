@@ -36,6 +36,9 @@
     .distribution-box { border:1px solid rgba(198,167,110,.22); background:#111111; padding:24px; border-radius:16px; margin-top:28px; }
     @media(max-width:900px) { .organic-grid { grid-template-columns:1fr; } .organic-hero { padding-top:150px; } }
   </style>
+
+  <!-- shared property card + gallery viewer, same file index.html loads -->
+  <link rel="stylesheet" href="css/property-ui.css" />
 </head>
 <body>
 <nav class="nav scrolled" id="nav">
@@ -50,7 +53,7 @@
 <main data-area="abdoun">
 <section class="organic-hero"><div class="container"><p class="label">Area Guide · Demo-Safe Preview</p><span class="gold-line"></span><h1>Abdoun luxury property, viewed with discretion.</h1><p>Abdoun remains a reference point for established luxury in Amman: embassies, mature streets, private villas, and apartment buildings with enduring appeal. It is less about novelty and more about address credibility, convenience, and the quality of surrounding homes.</p></div></section>
 <section class="organic-section"><div class="container organic-grid"><div class="organic-copy"><h2>Market Positioning</h2><p>Premium buyers value Abdoun for access, reputation, and liquidity. The strongest opportunities usually combine a clean title story, private setting, sensible circulation, and pricing that survives comparison against newer districts.</p><p>Lumina’s public preview remains controlled: listings shown through this site are workflow previews until availability, price, ownership, media permission, and representation authority are verified.</p><p><a href="listings.html">View selected premium opportunities</a></p></div><aside class="market-card"><strong>Review Standard</strong><p>Area-level location only. No exact addresses. No ownership claim. No source media reuse without permission.</p></aside></div><p class="demo-safe">This is a demo test run, not final live inventory. Availability, pricing, and media require verification before public launch.</p></div></section>
-<section class="organic-section alt"><div class="container"><p class="label">Listing Preview</p><span class="gold-line"></span><h2>Selected premium opportunities</h2><div id="listing-preview" class="preview-grid"></div></div></section>
+<section class="organic-section alt"><div class="container"><p class="label">Listing Preview</p><span class="gold-line"></span><h2>Selected premium opportunities</h2><div id="listing-preview" class="preview-grid grid-props"></div></div></section>
 </main>
 <footer class="footer">
   <div class="container">
@@ -64,6 +67,8 @@
   </div>
 </footer>
 <script src="js/site.js"></script>
+<script src="js/property-viewer.js"></script>
+<script src="js/property-card.js"></script>
 <script src="js/areas.js"></script>
 </body>
 </html>

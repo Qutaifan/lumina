@@ -19,6 +19,10 @@
   let tx = 0, ty = 0, cx = 0, cy = 0, gx = 0, gy = 0, moved = false;
 
   if (fine && !reduce) {
+    /* Claim ownership of --px/--py. property-card.js installs its own
+       pointer loop on pages without this file, and must not double up
+       here. */
+    (window.Lumina = window.Lumina || {}).parallax = true;
     addEventListener('pointermove', e => {
       tx = (e.clientX / innerWidth  - .5) * 2;
       ty = (e.clientY / innerHeight - .5) * 2;

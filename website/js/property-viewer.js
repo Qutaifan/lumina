@@ -57,7 +57,10 @@
         <div class="pv-foot">
           <div class="pv-info">
             <b></b>
-            <a class="pv-more" href="#">Full particulars <span aria-hidden="true">&rarr;</span></a>
+            <div class="pv-links">
+              <a class="pv-more" href="#">Full particulars <span aria-hidden="true">&rarr;</span></a>
+              <a class="pv-more pv-ask" href="#" target="_blank" rel="noopener noreferrer" hidden>Ask about this <span aria-hidden="true">&rarr;</span></a>
+            </div>
           </div>
           <div class="pv-strip"><div class="pv-track"></div></div>
           <span class="pv-count" aria-live="polite"></span>
@@ -76,6 +79,7 @@
       close: root.querySelector('.pv-x'),
       price: root.querySelector('.pv-info b'),
       more:  root.querySelector('.pv-more'),
+      ask:   root.querySelector('.pv-ask'),
       strip: root.querySelector('.pv-strip'),
       track: root.querySelector('.pv-track'),
       count: root.querySelector('.pv-count'),
@@ -194,6 +198,12 @@
       ? `${amount.toLocaleString('en-US')} JOD${tx ? ' · ' + tx : ''}`
       : 'Price on request';
     els.more.href = `property-details.html?id=${encodeURIComponent(listing.id)}`;
+
+    /* Optional WhatsApp route. The listings page passes one so the
+       enquiry path survives the card redesign; the home grid does not. */
+    const ask = listing.__askUrl;
+    els.ask.hidden = !ask;
+    if (ask) els.ask.href = ask;
 
     /* Stage layers */
     els.stage.replaceChildren(...shots.map((src, i) => {
