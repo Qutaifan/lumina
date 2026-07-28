@@ -191,8 +191,15 @@
   onScrollSpine(); onScrollPlx(); onScrollAperture();
 
   /* ── card tilt + tracking specular ────────────────────── */
-  if (fine && !reduce) {
-    $$('.tilt').forEach(card => {
+  /* Exposed as a public hook: the collection cards are injected after
+     their JSON resolves, long after this file runs, so they were never
+     picked up by the one-shot pass this used to be. Marks what it has
+     already bound so a re-scan can't stack a second set of listeners. */
+  const bindTilt = (scope = document) => {
+    if (!fine || reduce) return;
+    $$('.tilt', scope).forEach(card => {
+      if (card.dataset.tilt) return;
+      card.dataset.tilt = '1';
       let raf = null, rx = 0, ry = 0;
       const apply = () => {
         card.style.transform = `perspective(1000px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-6px)`;
@@ -209,7 +216,11 @@
       }, { passive: true });
       card.addEventListener('pointerleave', () => { card.style.transform = ''; });
     });
+  };
+  bindTilt();
+  Lumina.bindTilt = bindTilt;
 
+  if (fine && !reduce) {
     /* ── magnetic buttons ───────────────────────────────── */
     $$('.mag').forEach(el => {
       el.addEventListener('pointermove', e => {

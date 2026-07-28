@@ -591,11 +591,13 @@ h3.display{font-size:clamp(1.32rem,1.7vw,1.72rem); line-height:1.1}
   transition:transform .6s var(--ease),box-shadow .6s var(--ease),border-color .5s var(--ease);
   border:1px solid rgba(255,255,255,.07);
 }
-.card.wide{grid-column:span 2}
+/* `wide` moved to the .prop-float shell when cards gained their float
+   wrappers — the grid item is the shell now, not the card. */
+.card.wide,.prop-float.wide{grid-column:span 2}
 .card:hover{box-shadow:var(--shadow-lift); border-color:rgba(255,178,90,.22)}
 .card-media{position:relative; aspect-ratio:4/3; overflow:hidden;
   background:linear-gradient(150deg,var(--navy-3),var(--navy) 70%)}
-.card.wide .card-media{aspect-ratio:16/9}
+.card.wide .card-media,.prop-float.wide .card-media{aspect-ratio:16/9}
 .card-media img{width:100%; height:100%; object-fit:cover;
   transition:transform 1.3s var(--ease),filter .8s var(--ease);
   /* richer stills: more micro-contrast, slightly warmer */
@@ -638,6 +640,184 @@ h3.display{font-size:clamp(1.32rem,1.7vw,1.72rem); line-height:1.1}
   align-items:center; justify-content:center; gap:12px; text-align:center; padding:20px}
 .seal svg{width:22px; height:22px; color:var(--gold); filter:drop-shadow(0 0 10px rgba(255,178,90,.5))}
 .seal span{font-size:.64rem; letter-spacing:.2em; text-transform:uppercase; color:var(--c-70)}
+
+/* ── floating property card ───────────────────────────────
+   Four nested elements, one transform each. This is the
+   documented separation, extended by one level: the card
+   already owned an inline tilt transform written by JS, and a
+   CSS animation outranks an inline declaration — so .lev could
+   never share the card. Order outside-in:
+     .prop-float (.rv reveal) → .depth (cursor parallax)
+       → .lev (levitation) → .card (.tilt, inline from JS)
+   Collapsing any two silently kills the outer one. */
+.prop-float{position:relative}
+.prop-float.wide{grid-column:span 2}
+.prop-float>.depth,.prop-float .lev{height:100%}
+.prop-float .card{height:100%; display:flex; flex-direction:column;
+  box-shadow:0 42px 84px -30px rgba(0,0,0,.9),0 12px 28px -14px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)}
+.prop-float .card:hover{box-shadow:var(--shadow-lift),0 0 74px -22px rgba(255,178,90,.34)}
+.prop-float .card-body{flex:1; display:flex; flex-direction:column}
+.prop-float .price{margin-top:auto}
+
+/* chips floating over the cover photo */
+.card-tag,.card-badge,.card-shots{
+  position:absolute; z-index:4; display:inline-flex; align-items:center; gap:7px;
+  padding:7px 12px; border-radius:999px; font-size:.6rem; letter-spacing:.15em;
+  text-transform:uppercase; line-height:1; white-space:nowrap;
+  /* deliberately solid, not backdrop-filter — six cards would put a
+     dozen more blur surfaces on the compositor, over the stated ceiling */
+  background:rgba(5,7,11,.62); border:1px solid rgba(247,242,233,.14); color:var(--c-70);
+}
+.card-tag{left:14px; top:14px}
+.card-tag::before{content:""; width:5px; height:5px; border-radius:50%; flex:none;
+  background:var(--gold); box-shadow:0 0 8px var(--glow-gold)}
+.card-badge{right:14px; top:14px; font-weight:600; color:var(--ink); border-color:transparent;
+  background:linear-gradient(160deg,var(--gold-lt),var(--gold));
+  box-shadow:0 0 22px -8px var(--glow-gold)}
+.card-shots{right:14px; bottom:14px; padding:6px 11px; letter-spacing:.1em}
+.card-shots svg{width:12px; height:12px; opacity:.8}
+
+/* explicit affordance — the card is clickable, but the gallery
+   needs a named control for keyboard and screen-reader users */
+.view-btn{
+  appearance:none; -webkit-appearance:none; font:inherit; cursor:pointer;
+  font-size:.66rem; letter-spacing:.15em; text-transform:uppercase; color:var(--cream);
+  display:inline-flex; align-items:center; gap:10px; flex:none;
+  padding:5px 5px 5px 15px; border-radius:999px;
+  border:1px solid rgba(247,242,233,.16); background:transparent;
+  transition:border-color .45s var(--ease),background .45s var(--ease),box-shadow .45s var(--ease);
+}
+.view-btn .arrow{width:28px; height:28px}
+.view-btn .arrow svg{width:12px; height:12px}
+.card:hover .view-btn,.view-btn:hover,.view-btn:focus-visible{
+  border-color:var(--gold); background:rgba(255,178,90,.1); box-shadow:0 0 30px -10px var(--glow-gold)}
+.price{flex-wrap:wrap}
+
+/* ═══ property viewer — semi-fullscreen gallery ═══════════
+   Built and driven by js/property-viewer.js. Sits above the
+   brand bar (z 70) and below the boot curtain (z 100) is not
+   enough — boot is already dismissed by the time a card can be
+   clicked, so this takes 120 and owns the screen outright. */
+.pv{
+  position:fixed; inset:0; z-index:120; display:grid; place-items:center;
+  padding:clamp(10px,3vw,44px);
+  opacity:0; pointer-events:none;
+  transition:opacity .45s var(--ease);
+}
+/* `display:grid` above outranks the UA rule for [hidden], so the
+   attribute needs restating — and it has to be the attribute, not
+   `visibility`, that hides this: visibility transitions discretely, so
+   it still computes `hidden` on the frame the dialog opens, and the
+   focus() that runs on that frame would silently do nothing. */
+.pv[hidden]{display:none}
+.pv.open{opacity:1; pointer-events:auto}
+.pv-scrim{position:absolute; inset:0; background:rgba(3,5,8,.86); border:0; padding:0; cursor:pointer}
+/* one blur surface, only while open, desktop only */
+@media (min-width:1024px){
+  .pv-scrim{background:rgba(3,5,8,.72);
+    -webkit-backdrop-filter:blur(16px) saturate(120%); backdrop-filter:blur(16px) saturate(120%)}
+}
+.pv-win{
+  position:relative; width:min(1180px,100%); height:min(86vh,880px);
+  border-radius:clamp(14px,1.6vw,22px); overflow:hidden;
+  background:radial-gradient(72% 62% at 50% 38%,var(--navy-2),var(--ink));
+  border:1px solid rgba(247,242,233,.12);
+  box-shadow:0 60px 140px -40px rgba(0,0,0,.95),0 0 100px -34px rgba(255,178,90,.18);
+  opacity:0; transform:translate3d(0,30px,0) scale(.965);
+  transition:opacity .5s var(--ease),transform .6s var(--ease);
+}
+.pv.open .pv-win{opacity:1; transform:none}
+
+/* stage — every shot stacked, cross-faded by opacity only */
+.pv-stage{position:absolute; inset:0; overflow:hidden}
+.pv-shot{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;
+  opacity:0; transform:scale(1.05);
+  transition:opacity .7s var(--ease),transform 1.5s var(--ease);
+}
+.pv-shot.on{opacity:1; transform:none}
+.pv-stage::after{
+  content:""; position:absolute; inset:0; z-index:5; pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(3,5,8,.62) 0%,transparent 20%,transparent 42%,rgba(3,5,8,.88) 100%),
+    radial-gradient(120% 90% at 50% 50%,transparent 52%,rgba(3,5,8,.42));
+}
+
+.pv-head{position:absolute; left:clamp(18px,3vw,40px); top:clamp(18px,2.4vw,32px);
+  z-index:7; max-width:min(60ch,66%)}
+.pv-head .kicker{margin:0 0 9px; font-size:.6rem}
+.pv-head h3{margin:0; font-size:clamp(1.3rem,2.5vw,2rem)}
+
+.pv-foot{
+  position:absolute; left:0; right:0; bottom:0; z-index:7;
+  padding:clamp(14px,2.2vw,26px) clamp(18px,3vw,40px);
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:end; gap:clamp(12px,2vw,24px);
+}
+.pv-info{display:flex; flex-direction:column; gap:9px; align-items:flex-start}
+.pv-info b{font-family:var(--display); font-weight:400; font-size:clamp(1.05rem,1.8vw,1.34rem);
+  letter-spacing:-.01em; text-shadow:0 0 22px rgba(255,178,90,.16)}
+.pv-more{font-size:.66rem; letter-spacing:.15em; text-transform:uppercase; color:var(--gold);
+  display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+  border-bottom:1px solid rgba(255,178,90,.28); padding-bottom:3px;
+  transition:color .4s var(--ease),border-color .4s var(--ease)}
+.pv-more:hover{color:var(--gold-lt); border-color:var(--gold-lt)}
+.pv-count{justify-self:end; align-self:end; font-size:.66rem; letter-spacing:.18em;
+  color:var(--c-52); font-variant-numeric:tabular-nums}
+
+/* the fading slide — active thumb pinned to centre, the track
+   slides under a mask so neighbours dissolve toward both edges */
+.pv-strip{
+  width:min(430px,52vw); overflow:hidden; padding:8px 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);
+}
+.pv-track{display:flex; gap:10px; transition:transform .65s var(--ease); will-change:transform}
+.pv-thumb{
+  flex:none; width:60px; height:44px; padding:0; border-radius:8px; overflow:hidden;
+  border:1px solid transparent; background:var(--navy-3); cursor:pointer; opacity:.32;
+  transition:opacity .5s var(--ease),transform .5s var(--ease),
+             border-color .5s var(--ease),box-shadow .5s var(--ease);
+}
+.pv-thumb img{width:100%; height:100%; object-fit:cover; display:block}
+.pv-thumb:hover{opacity:.72}
+.pv-thumb.on{opacity:1; transform:translateY(-5px) scale(1.09);
+  border-color:var(--gold); box-shadow:0 0 22px -5px var(--glow-gold)}
+
+.pv-nav,.pv-x{
+  position:absolute; z-index:8; display:grid; place-items:center; cursor:pointer;
+  border-radius:50%; color:var(--cream); padding:0;
+  border:1px solid rgba(247,242,233,.18); background:rgba(5,7,11,.55);
+  transition:background .4s var(--ease),border-color .4s var(--ease),
+             transform .4s var(--ease),box-shadow .4s var(--ease);
+}
+.pv-nav:hover,.pv-x:hover,.pv-nav:focus-visible,.pv-x:focus-visible{
+  border-color:var(--gold); background:rgba(255,178,90,.16); box-shadow:0 0 30px -8px var(--glow-gold)}
+.pv-nav{top:50%; width:clamp(40px,3.2vw,48px); height:clamp(40px,3.2vw,48px); transform:translateY(-50%)}
+.pv-prev{left:clamp(10px,1.8vw,22px)}
+.pv-next{right:clamp(10px,1.8vw,22px)}
+.pv-prev:hover{transform:translateY(-50%) translateX(-3px)}
+.pv-next:hover{transform:translateY(-50%) translateX(3px)}
+.pv-nav svg{width:15px; height:15px}
+.pv-x{top:clamp(12px,1.6vw,20px); right:clamp(12px,1.6vw,20px); width:40px; height:40px}
+.pv-x svg{width:14px; height:14px}
+.pv-nav[hidden],.pv-x[hidden]{display:none}
+
+/* scroll lock. The bar is fixed, so it has to absorb the same
+   gutter the scrollbar leaves behind or the nav jumps sideways. */
+html.pv-lock{overflow:hidden}
+html.pv-lock body{padding-right:var(--sbw,0px)}
+html.pv-lock .bar{padding-right:calc(var(--gutter) + var(--sbw,0px))}
+
+@media (max-width:760px){
+  .pv-win{height:92vh}
+  .pv-shot{object-fit:contain}
+  .pv-head{max-width:calc(100% - 68px)}
+  .pv-foot{grid-template-columns:1fr; justify-items:center; text-align:center; gap:14px}
+  .pv-info{align-items:center}
+  .pv-count{justify-self:center}
+  .pv-strip{width:min(320px,78vw)}
+  .pv-nav{width:38px; height:38px}
+}
 
 /* ═══ film band — aperture bridge ═════════════════════════
    The section pins to the viewport and reveals through a clip-path
@@ -822,8 +1002,8 @@ footer.foot{position:relative; z-index:2; padding:clamp(46px,6vh,74px) var(--gut
 /* ═══ responsive ══════════════════════════════════════════ */
 @media (max-width:1180px){
   .spine{display:none}
-  .card.wide{grid-column:span 1}
-  .card.wide .card-media{aspect-ratio:4/3}
+  .card.wide,.prop-float.wide{grid-column:span 1}
+  .card.wide .card-media,.prop-float.wide .card-media{aspect-ratio:4/3}
 }
 @media (max-width:980px){
   /* hero stacks: headline first, then the stat pair, then the CTA */
@@ -1039,7 +1219,7 @@ footer.foot{position:relative; z-index:2; padding:clamp(46px,6vh,74px) var(--gut
   <div class="sec-head rv">
     <p class="kicker">Current collection</p>
     <h2 class="display">Residences from the private portfolio.</h2>
-    <p class="lede">Real inventory matched to reference photos. Full particulars and galleries open on each property — or browse the complete list.</p>
+    <p class="lede">Real inventory matched to reference photos. Open any residence to page through its gallery without leaving the room — or browse the complete list.</p>
   </div>
 
   <div class="grid-props" id="home-collection-grid" aria-live="polite">
@@ -1233,6 +1413,8 @@ footer.foot{position:relative; z-index:2; padding:clamp(46px,6vh,74px) var(--gut
 </footer>
 
 <script src="js/lumina.js" defer></script>
+<!-- must precede home-collection.js: the cards ask it to open on click -->
+<script src="js/property-viewer.js" defer></script>
 <script src="js/home-collection.js" defer></script>
 </body>
 </html>
