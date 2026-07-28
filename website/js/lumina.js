@@ -43,7 +43,17 @@
       if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
     });
   }, { rootMargin: '0px 0px -12% 0px', threshold: .12 });
-  $$('.rv').forEach(el => io.observe(el));
+  const observeReveals = () => $$('.rv').forEach(el => {
+    if (!el.classList.contains('in')) io.observe(el);
+  });
+  observeReveals();
+
+  /* Public hook. home-collection.js injects its cards after its JSON
+     resolves, i.e. long after this ran, and already looks for this —
+     without it the cards were being force-marked 'in' and skipped the
+     reveal every other section gets. */
+  const Lumina = window.Lumina = window.Lumina || {};
+  Lumina.refreshReveals = observeReveals;
 
   /* ── per-line headline reveal ──────────────────────────── */
   /* Splits h1.display/h2.display into per-line spans so each line can
@@ -228,6 +238,40 @@
     };
     band.addEventListener('play',  () => { if (!pRaf) draw(); });
     band.addEventListener('pause', () => { cancelAnimationFrame(pRaf); pRaf = null; });
+  }
+
+  /* ── deep-link landing ────────────────────────────────────
+     Arriving at index.html#hoods from another page used to land at the
+     top of the document. Two causes, compounding: the collection grid
+     is injected asynchronously and adds ~1800px *below* the fragment
+     target, so the browser's own scroll resolves against a document
+     that is still short; and `scroll-behavior: smooth` turns that into
+     an animation which the subsequent layout shift cancels outright.
+     Re-seat the target once the page has actually settled, without
+     animating — a deep link should arrive, not scroll. */
+  const landOnHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    const root = document.documentElement;
+    const prev = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    target.scrollIntoView({ block: 'start' });
+    root.style.scrollBehavior = prev;
+  };
+
+  if (location.hash) {
+    addEventListener('load', landOnHash);
+    /* The grid resolves on its own schedule; re-seat when it lands,
+       then stop watching. Capped so a failed fetch can't leave this
+       observer running for the life of the page. */
+    const grid = $('#home-collection-grid');
+    if (grid) {
+      const mo = new MutationObserver(() => { landOnHash(); mo.disconnect(); });
+      mo.observe(grid, { childList: true });
+      setTimeout(() => mo.disconnect(), 6000);
+    }
   }
 
   /* ── contact form → prefilled WhatsApp ────────────────── */
