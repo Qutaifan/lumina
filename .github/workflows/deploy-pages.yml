@@ -27,8 +27,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # enablement: true provisions the Pages site on first run using the
+      # workflow's own GITHUB_TOKEN (see the pages: write permission above).
+      # Without it this step 404s until someone with admin on the repo sets
+      # Settings -> Pages -> Source manually — which is what had been
+      # failing every run since the workflow was added.
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload website folder
         uses: actions/upload-pages-artifact@v3
