@@ -56,6 +56,19 @@
     });
   };
 
+  /* The grid holds a hundred cards, so a filter that removes three of
+     them changes almost nothing on screen. The number is the only honest
+     feedback there is; make it move when it changes. */
+  const setCount = n => {
+    if (!count) return;
+    const before = count.textContent;
+    count.textContent = String(n);
+    if (before === count.textContent) return;
+    count.classList.remove('bump');
+    void count.offsetWidth;   // restart the animation, not queue it
+    count.classList.add('bump');
+  };
+
   const renderListings = listings => {
     try {
       if (typeof (window.Lumina && window.Lumina.buildPropertyCard) !== 'function') {
@@ -72,7 +85,7 @@
            be re-bound every render, not just on first paint. */
         window.Lumina.activateCards(grid);
       }
-      if (count) count.textContent = String(listings.length);
+      setCount(listings.length);
     } catch (err) {
       console.error('Lumina renderListings error:', err);
       showFallback(err.message);
@@ -85,13 +98,63 @@
     message.className = 'listing-error';
     message.textContent = 'Portfolio is temporarily unavailable. Please try again later.';
     grid.replaceChildren(message);
-    if (count) count.textContent = '0';
+    setCount(0);
   };
 
   const activeType = () => {
     const pill = document.querySelector('.type-pill.active');
     return (pill && pill.getAttribute('data-type')) || 'all';
   };
+
+  /* ---- FLOOR ----
+     The data holds 16 distinct floor strings for 112 listings, including
+     "2nd floor (from lower street)" — Amman is built on hills, so a flat
+     can be on two floors at once depending on which street you came from.
+     Offering all 16 as filter options would be offering the reader the
+     import's inconsistencies. These five bands are what someone actually
+     chooses between. 17 listings have no floor recorded and match no
+     band; they appear whenever the floor filter is off. */
+  const FLOORS = [
+    { value: 'lower',   label: 'Lower level' },
+    { value: 'ground',  label: 'Ground floor' },
+    { value: 'low',     label: '1st – 3rd floor' },
+    { value: 'high',    label: '4th floor and above' },
+    { value: 'rooftop', label: 'Rooftop' },
+  ];
+
+  const floorGroup = raw => {
+    const s = safeText(raw).toLowerCase().trim();
+    if (!s) return '';
+    if (s.includes('roof')) return 'rooftop';
+    /* "Level −1" is a basement. Checked before the others because the
+       string also has to survive "(from lower street)", which is a
+       description of the entrance, not a storey. */
+    if (s.includes('level')) return 'lower';
+    if (s.includes('ground')) return 'ground';
+    const m = s.match(/(\d+)\s*(?:st|nd|rd|th)/);
+    if (m) return Number(m[1]) <= 3 ? 'low' : 'high';
+    return '';
+  };
+
+  /* ---- BEDROOMS ----
+     1, 2, 3 and 4+. Four and eight are the only values above three, six
+     listings between them, so they share a bucket. */
+  const bedBucket = raw => {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 1) return '';
+    /* 46024 was an Excel date serial that landed in this column. It has
+       been cleared, but a ceiling costs nothing and stops the next bad
+       import inventing a bedroom count. */
+    if (n > 30) return '';
+    return String(Math.min(n, 4));
+  };
+
+  /* Selected values. Areas and floors are multi-select; bedrooms toggle
+     independently, which single-choice pills cannot express — "two or
+     three bedrooms" is one of the commonest searches there is. */
+  const state = { areas: [], floors: [], beds: new Set() };
+  let msArea = null;
+  let msFloor = null;
 
   /* Every footer on the site links to listings.html?type=villa,
      ?location=abdoun and so on. Nothing read those parameters, so all
@@ -110,15 +173,33 @@
       }
     }
 
-    /* Match loosely: the links are slugs ("dair-ghbar", "um-uthaina")
-       while the data holds display names ("Dair Ghbar"). */
-    const loc = (q.get('location') || '').trim().toLowerCase().replace(/[-_]+/g, ' ');
-    if (loc) {
-      const sel = document.getElementById('filter-location');
-      const match = [...(sel ? sel.options : [])]
-        .find(o => o.value && o.value.toLowerCase().replace(/[-_]+/g, ' ') === loc);
-      if (sel && match) sel.value = match.value;
+    /* Comma-separates, so a link can carry more than one area now that
+       the control can hold more than one. ?location=Abdoun still works
+       — every footer on the site sends that form. */
+    const norm = s => s.trim().toLowerCase().replace(/[-_]+/g, ' ');
+    const locs = (q.get('location') || '').split(',').map(norm).filter(Boolean);
+    if (locs.length && msArea) {
+      /* Match loosely: the links are slugs ("dair-ghbar", "um-uthaina")
+         while the data holds display names ("Dair Ghbar"). */
+      const known = new Set(listings.map(l => safeText(l.location).trim()).filter(Boolean));
+      const picked = [...known].filter(k => locs.includes(norm(k)));
+      if (picked.length) { msArea.set(picked); state.areas = picked; }
     }
+
+    const floors = (q.get('floor') || '').split(',').map(norm).filter(Boolean);
+    if (floors.length && msFloor) {
+      const picked = FLOORS.map(f => f.value).filter(v => floors.includes(v));
+      if (picked.length) { msFloor.set(picked); state.floors = picked; }
+    }
+
+    const beds = (q.get('beds') || '').split(',').map(s => s.trim()).filter(Boolean);
+    beds.forEach(b => {
+      const pill = document.querySelector('.fx-pill[data-bed="' + b.replace(/\D/g, '') + '"]');
+      if (!pill) return;
+      pill.classList.add('active');
+      pill.setAttribute('aria-pressed', 'true');
+      state.beds.add(pill.getAttribute('data-bed'));
+    });
 
     const budget = (q.get('budget') || '').trim();
     const bsel = document.getElementById('filter-budget');
@@ -131,14 +212,26 @@
     if (type && type !== 'all') {
       list = list.filter(l => safeText(l.property_type).toLowerCase().includes(type.toLowerCase()));
     }
-    const locSel = document.getElementById('filter-location');
-    const loc = locSel && locSel.value ? locSel.value.trim() : '';
-    if (loc) {
-      list = list.filter(l =>
-        safeText(l.location).toLowerCase().includes(loc.toLowerCase()) ||
-        safeText(l.location_area).toLowerCase().includes(loc.toLowerCase())
-      );
+
+    /* Within a filter the selected values are an OR — picking Abdoun and
+       Swefieh means either. Between filters it is an AND. */
+    if (state.areas.length) {
+      const want = state.areas.map(a => a.toLowerCase());
+      list = list.filter(l => {
+        const a = safeText(l.location).toLowerCase();
+        const b = safeText(l.location_area).toLowerCase();
+        return want.some(w => a.includes(w) || b.includes(w));
+      });
     }
+
+    if (state.floors.length) {
+      list = list.filter(l => state.floors.includes(floorGroup(l.floor)));
+    }
+
+    if (state.beds.size) {
+      list = list.filter(l => state.beds.has(bedBucket(l.bedrooms)));
+    }
+
     const budgetSel = document.getElementById('filter-budget');
     const budget = budgetSel && budgetSel.value ? budgetSel.value : '';
     if (budget) {
@@ -163,30 +256,106 @@
         }
       });
     }
+    syncChrome();
     renderListings(list);
   };
 
-  const populateLocations = listings => {
-    const sel = document.getElementById('filter-location');
-    if (!sel) return;
-    /* Count as we go, so the filter says how much is behind each option
-       rather than offering an area with one listing as an equal choice. */
-    const counts = new Map();
+  /* The budget select has no .active of its own, and "Clear all" should
+     not sit there offering to clear nothing. */
+  const syncChrome = () => {
+    const bsel = document.getElementById('filter-budget');
+    if (bsel) bsel.classList.toggle('active', !!bsel.value);
+
+    const any = activeType() !== 'all'
+      || state.areas.length > 0
+      || state.floors.length > 0
+      || state.beds.size > 0
+      || !!(bsel && bsel.value);
+
+    const clear = document.getElementById('fx-clear');
+    if (clear) {
+      if (any) {
+        clear.hidden = false;
+        /* Unhide first, class on the next frame, or the fade has no
+           start value to run from. */
+        requestAnimationFrame(() => clear.classList.add('on'));
+      } else {
+        clear.classList.remove('on');
+        setTimeout(() => { if (!clear.classList.contains('on')) clear.hidden = true; }, 340);
+      }
+    }
+  };
+
+  /* Counts come from the data, never from a hand-written list. An option
+     offering an area with one listing as an equal choice to one with
+     sixty is a filter that hides the shape of the portfolio. */
+  const buildFilters = listings => {
+    if (typeof (window.Lumina && window.Lumina.multiSelect) !== 'function') {
+      console.error('Lumina: filter-ui.js did not load — area and floor filters unavailable');
+      return;
+    }
+
+    const areaCounts = new Map();
     listings.forEach(l => {
       const k = safeText(l.location).trim();
-      if (k) counts.set(k, (counts.get(k) || 0) + 1);
+      if (k) areaCounts.set(k, (areaCounts.get(k) || 0) + 1);
     });
-    const locs = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const areaOptions = [...areaCounts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([value, count]) => ({ value, label: value, count }));
 
-    const current = sel.value;
-    sel.innerHTML = '<option value="">All areas</option>';
-    locs.forEach(([loc, n]) => {
-      const opt = document.createElement('option');
-      opt.value = loc;
-      opt.textContent = `${loc} (${n})`;
-      sel.appendChild(opt);
+    const floorCounts = new Map();
+    listings.forEach(l => {
+      const g = floorGroup(l.floor);
+      if (g) floorCounts.set(g, (floorCounts.get(g) || 0) + 1);
     });
-    if (current) sel.value = current;
+    /* Kept in building order — lower, ground, up, roof — rather than
+       sorted by count. It is a vertical axis and reads as one. */
+    const floorOptions = FLOORS
+      .filter(f => floorCounts.get(f.value))
+      .map(f => ({ value: f.value, label: f.label, count: floorCounts.get(f.value) }));
+
+    const mountArea = document.getElementById('fx-location');
+    if (mountArea) {
+      msArea = window.Lumina.multiSelect({
+        mount: mountArea,
+        placeholder: 'All areas',
+        noun: 'areas',
+        aria: 'Filter by area',
+        options: areaOptions,
+        onChange: values => { state.areas = values; applyFilters(); },
+      });
+    }
+
+    const mountFloor = document.getElementById('fx-floor');
+    if (mountFloor) {
+      msFloor = window.Lumina.multiSelect({
+        mount: mountFloor,
+        placeholder: 'Any floor',
+        noun: 'floors',
+        aria: 'Filter by floor',
+        options: floorOptions,
+        onChange: values => { state.floors = values; applyFilters(); },
+      });
+    }
+
+    /* Bedroom pills carry their counts in the tooltip rather than the
+       label — the pill is 40px wide and the number has to stay legible. */
+    const bedCounts = new Map();
+    listings.forEach(l => {
+      const b = bedBucket(l.bedrooms);
+      if (b) bedCounts.set(b, (bedCounts.get(b) || 0) + 1);
+    });
+    document.querySelectorAll('.fx-pill[data-bed]').forEach(pill => {
+      const key = pill.getAttribute('data-bed');
+      const n = bedCounts.get(key) || 0;
+      const name = key === '4' ? 'four or more bedrooms' : key + '-bedroom';
+      pill.title = n + (n === 1 ? ' property' : ' properties');
+      pill.setAttribute('aria-label', name + ', ' + n + ' available');
+      pill.setAttribute('aria-pressed', 'false');
+      /* Nothing to show behind it, so do not offer it. */
+      if (!n) pill.hidden = true;
+    });
   };
 
   if (grid) {
@@ -200,9 +369,9 @@
       .then(data => {
         if (!Array.isArray(data)) throw new Error('Data is not an array');
         allListings = data;
-        populateLocations(data);
-        /* After populateLocations, so the location option a deep link
-           asks for exists to be selected. */
+        buildFilters(data);
+        /* After buildFilters, so the options a deep link asks for exist
+           to be selected. */
         applyUrlFilters(data);
         applyFilters();
       })
@@ -219,8 +388,39 @@
     });
   });
 
-  const locSel = document.getElementById('filter-location');
-  if (locSel) locSel.addEventListener('change', applyFilters);
+  document.querySelectorAll('.fx-pill[data-bed]').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const key = pill.getAttribute('data-bed');
+      const on = !pill.classList.contains('active');
+      pill.classList.toggle('active', on);
+      pill.setAttribute('aria-pressed', String(on));
+      if (on) state.beds.add(key);
+      else state.beds.delete(key);
+      applyFilters();
+    });
+  });
+
   const budgetSel = document.getElementById('filter-budget');
   if (budgetSel) budgetSel.addEventListener('change', applyFilters);
+
+  const clearBtn = document.getElementById('fx-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+      const all = document.querySelector('.type-pill[data-type="all"]');
+      if (all) all.classList.add('active');
+
+      document.querySelectorAll('.fx-pill[data-bed]').forEach(p => {
+        p.classList.remove('active');
+        p.setAttribute('aria-pressed', 'false');
+      });
+      state.beds.clear();
+
+      if (msArea) { msArea.clear(); state.areas = []; }
+      if (msFloor) { msFloor.clear(); state.floors = []; }
+      if (budgetSel) budgetSel.value = '';
+
+      applyFilters();
+    });
+  }
 })();
