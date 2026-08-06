@@ -110,7 +110,6 @@
 
         const cond = conditionFor(cur.weather_code);
         tempEl.textContent = String(Math.round(t));
-        panel.classList.add('wx-live');
 
         if (cond) {
           iconEl.innerHTML = ICONS[cond.icon] || '';
@@ -118,6 +117,17 @@
         } else {
           descEl.textContent = 'Amman';
         }
+
+        /* Values first, then the class. .wx-live is what fades the
+           reading and the icon up (see .wx .wx-read in index.html), and
+           the forced reflow is what gives that transition a start value
+           — the icon in particular only exists as of the line above, so
+           without it the whole panel would still arrive in one frame.
+           Same reason the commission sheet reads offsetWidth below, and
+           not a rAF pair: rAF is throttled to a standstill in a
+           backgrounded tab. */
+        void panel.offsetWidth;
+        panel.classList.add('wx-live');
       })
       .catch(err => {
         /* Never invent a temperature. The panel falls back to naming the
@@ -133,9 +143,14 @@
      COMMISSION SHEET
      ========================================================== */
 
-  const initSheet = () => {
-    const opener = document.getElementById('cmOpen');
-    const sheet = document.getElementById('cmx');
+  /* Takes the pair by id so a second sheet costs one more call rather
+     than a second copy of the focus trap, the scroll lock and the
+     Escape handler. The quiz sheet reuses the whole of it — which is
+     also why it reuses the .cmx-panel / .cmx-veil / .cmx-x shell: one
+     implementation, and the two dialogs cannot drift apart. */
+  const initSheet = (openerId, sheetId) => {
+    const opener = document.getElementById(openerId);
+    const sheet = document.getElementById(sheetId);
     if (!opener || !sheet) return;
 
     const panel = sheet.querySelector('.cmx-panel');
@@ -201,7 +216,17 @@
     });
   };
 
-  const boot = () => { paintWeather(); initSheet(); };
+  /* Exposed so js/quiz.js can render into the sheet without owning the
+     open/close/trap machinery — same reason lumina.js exposes bindTilt
+     for cards that arrive after it has run. */
+  window.Lumina = window.Lumina || {};
+  window.Lumina.initSheet = initSheet;
+
+  const boot = () => {
+    paintWeather();
+    initSheet('cmOpen', 'cmx');
+    initSheet('qzOpen', 'qz');
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

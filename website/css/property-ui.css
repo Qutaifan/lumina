@@ -82,6 +82,11 @@
 .prop-float.rv.in{opacity:1; transform:none; filter:none}
 
 .prop-float .lev{animation:lum-lev var(--dur,11s) var(--lum-ease) var(--delay,0s) infinite}
+/* A hundred-odd cards levitating at once is a hundred-odd compositor
+   animations ticking whether or not anyone can see them. js/property-card.js
+   marks what is off screen; the animation is paused, not cancelled, so a
+   card resumes mid-phase and the grid never pulses in unison. */
+.prop-float.rest .lev{animation-play-state:paused}
 @keyframes lum-lev{
   0%,100%{transform:translate3d(0,calc(var(--amp,10px) * -1),0) rotate(calc(var(--rot,.25deg) * -1))}
   50%{transform:translate3d(0,var(--amp,10px),0) rotate(var(--rot,.25deg))}
@@ -159,17 +164,23 @@
   line-height:1; white-space:nowrap;
   background:rgba(5,7,11,.62); border:1px solid rgba(247,242,233,.14); color:var(--lum-c-70);
 }
-.prop-float .card-tag{left:14px; top:14px}
+.prop-float .card-tag{left:14px; right:auto; top:14px; bottom:auto}
 .prop-float .card-tag::before{
   content:""; width:5px; height:5px; border-radius:50%; flex:none;
   background:var(--lum-gold); box-shadow:0 0 8px var(--lum-glow-gold);
 }
+/* left:auto is load-bearing. css/style.css — which listings.html and the
+   area pages load before this file — has its own .card-badge from the old
+   flat card, pinned at left:16px. Setting only `right` here left BOTH
+   offsets applied, so the badge stretched the full width of every card and
+   printed the word RENT on a gold bar across the photograph. */
 .prop-float .card-badge{
-  right:14px; top:14px; font-weight:600; color:var(--lum-ink); border-color:transparent;
+  right:14px; left:auto; top:14px; bottom:auto;
+  font-weight:600; color:var(--lum-ink); border-color:transparent;
   background:linear-gradient(160deg,var(--lum-gold-lt),var(--lum-gold));
   box-shadow:0 0 22px -8px var(--lum-glow-gold);
 }
-.prop-float .card-shots{right:14px; bottom:14px; padding:6px 11px; letter-spacing:.1em}
+.prop-float .card-shots{right:14px; left:auto; bottom:14px; top:auto; padding:6px 11px; letter-spacing:.1em}
 .prop-float .card-shots svg{width:12px; height:12px; opacity:.8}
 
 .prop-float .card-body{

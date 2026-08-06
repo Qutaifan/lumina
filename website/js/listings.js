@@ -43,12 +43,14 @@
        from a card is not a dead end. */
     listing.__askUrl = whatsappUrl(listingMessage(listing));
     return window.Lumina.buildPropertyCard(listing, index, {
-      /* No `wide` card here. The home grid features one; on a 124-card
+      /* No `wide` card here. The home grid features one; on a 118-card
          portfolio a double-width item just breaks the rhythm. */
       wide: false,
-      /* Stagger reads as intentional across six cards. Across 124 it
-         reads as a page that will not finish loading. */
-      stagger: false,
+      /* On by name only: the builder caps the delay at the first nine
+         cards, so the opening screen assembles and everything below the
+         fold still reveals the moment it is scrolled to. Staggering all
+         118 would leave the last card waiting eleven seconds. */
+      stagger: true,
       actions: [
         { label: 'Request Details',  href: whatsappUrl(listingMessage(listing)), primary: true },
         { label: 'Schedule Viewing', href: whatsappUrl(viewingMessage(listing)) },
@@ -75,9 +77,24 @@
         throw new Error('property-card.js did not load');
       }
       if (!listings.length) {
+        /* Not a dead end: the filters that emptied the grid are the same
+           ones the reader now has to undo, so the way out is offered here
+           rather than left to be found back up the page. */
         const empty = document.createElement('div');
         empty.className = 'listing-error';
-        empty.textContent = 'No properties match these filters.';
+        const head = document.createElement('b');
+        head.textContent = 'Nothing matches that combination.';
+        const note = document.createElement('span');
+        note.textContent = 'Widen one of the filters, or tell us what you are looking for — a good deal of what we hold is never listed publicly.';
+        empty.append(head, note);
+        const reset = document.createElement('button');
+        reset.type = 'button';
+        reset.textContent = 'Clear all filters';
+        reset.addEventListener('click', () => {
+          const clear = document.getElementById('fx-clear');
+          if (clear) clear.click();
+        });
+        empty.appendChild(reset);
         grid.replaceChildren(empty);
       } else {
         grid.replaceChildren(...listings.map(createListingCard));
@@ -152,7 +169,30 @@
   /* Selected values. Areas and floors are multi-select; bedrooms toggle
      independently, which single-choice pills cannot express — "two or
      three bedrooms" is one of the commonest searches there is. */
-  const state = { areas: [], floors: [], beds: new Set() };
+  const state = { areas: [], floors: [], beds: new Set(), deal: '' };
+
+  /* ---- TRANSACTION ----
+     The column holds "Rent", "Sale" and "Sale or Rent". The third is not a
+     third category so much as a listing that answers both questions, so it
+     matches Rent and it matches Sale. "both" is the way to see only those. */
+  const dealMatch = (deal, raw) => {
+    const s = safeText(raw).toLowerCase();
+    const rent = s.includes('rent');
+    const sale = s.includes('sale');
+    if (deal === 'rent') return rent;
+    if (deal === 'sale') return sale;
+    if (deal === 'both') return rent && sale;
+    return true;
+  };
+
+  const setDeal = (value, pill) => {
+    state.deal = value;
+    document.querySelectorAll('.fx-pill[data-deal]').forEach(p => {
+      const on = p === pill;
+      p.classList.toggle('active', on);
+      p.setAttribute('aria-pressed', String(on));
+    });
+  };
   let msArea = null;
   let msFloor = null;
 
@@ -204,6 +244,14 @@
     const budget = (q.get('budget') || '').trim();
     const bsel = document.getElementById('filter-budget');
     if (budget && bsel && [...bsel.options].some(o => o.value === budget)) bsel.value = budget;
+
+    /* ?deal=rent|sale|both. "transaction" is accepted too because that is
+       what the field is called everywhere else in the data. */
+    const deal = (q.get('deal') || q.get('transaction') || '').trim().toLowerCase();
+    if (deal) {
+      const pill = document.querySelector('.fx-pill[data-deal="' + deal + '"]');
+      if (pill) setDeal(deal, pill);
+    }
   };
 
   const applyFilters = () => {
@@ -230,6 +278,10 @@
 
     if (state.beds.size) {
       list = list.filter(l => state.beds.has(bedBucket(l.bedrooms)));
+    }
+
+    if (state.deal) {
+      list = list.filter(l => dealMatch(state.deal, l.transaction));
     }
 
     const budgetSel = document.getElementById('filter-budget');
@@ -270,6 +322,7 @@
       || state.areas.length > 0
       || state.floors.length > 0
       || state.beds.size > 0
+      || !!state.deal
       || !!(bsel && bsel.value);
 
     const clear = document.getElementById('fx-clear');
@@ -284,6 +337,47 @@
         setTimeout(() => { if (!clear.classList.contains('on')) clear.hidden = true; }, 340);
       }
     }
+  };
+
+  /* ---- HEADER STATS ----
+     Three figures under the headline, all counted from the file that draws
+     the grid. Typed in by hand they would be wrong the next time the
+     portfolio moves, and this page's whole claim is that it shows
+     everything we hold. */
+  const buildHeaderStats = listings => {
+    const mount = document.getElementById('ph-stats');
+    if (!mount) return;
+    const areas = new Set();
+    let shots = 0;
+    listings.forEach(l => {
+      const a = safeText(l.location).trim();
+      if (a) areas.add(a);
+      shots += Array.isArray(l.images) ? l.images.length : 0;
+    });
+    const stats = [
+      [listings.length, listings.length === 1 ? 'Residence' : 'Residences'],
+      [areas.size, areas.size === 1 ? 'District' : 'Districts'],
+      [shots.toLocaleString('en-US'), 'Photographs'],
+    ];
+    mount.replaceChildren(...stats.map(([n, label]) => {
+      const li = document.createElement('li');
+      const b = document.createElement('b');
+      b.textContent = String(n);
+      const s = document.createElement('span');
+      s.textContent = label;
+      li.append(b, s);
+      return li;
+    }));
+  };
+
+  /* ---- STICKY OFFSET ----
+     The brand bar is fixed, so the filter bar has to stick below it rather
+     than at zero — measured, not guessed, because the bar's height is a
+     clamp() and changes with the viewport. */
+  const syncBarHeight = () => {
+    const bar = document.getElementById('bar');
+    if (!bar) return;
+    document.documentElement.style.setProperty('--bar-h', Math.round(bar.offsetHeight) + 'px');
   };
 
   /* Counts come from the data, never from a hand-written list. An option
@@ -358,10 +452,14 @@
     });
   };
 
+  syncBarHeight();
+  addEventListener('resize', syncBarHeight, { passive: true });
+  addEventListener('load', syncBarHeight, { once: true });
+
   if (grid) {
     /* Relative, not root-absolute: a GitHub Pages project deploy serves
        this from /lumina/, where a leading slash 404s. */
-    fetch('data/lumina-demo-leads.json')
+    fetch('data/lumina-demo-leads.json?v=2026-08-06')
       .then(response => {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.json();
@@ -369,6 +467,7 @@
       .then(data => {
         if (!Array.isArray(data)) throw new Error('Data is not an array');
         allListings = data;
+        buildHeaderStats(data);
         buildFilters(data);
         /* After buildFilters, so the options a deep link asks for exist
            to be selected. */
@@ -400,6 +499,17 @@
     });
   });
 
+  /* Single choice, but clicking the active one turns it off — there is no
+     "Any" pill, so the second click has to be the way back to everything. */
+  document.querySelectorAll('.fx-pill[data-deal]').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const key = pill.getAttribute('data-deal');
+      if (state.deal === key) setDeal('', null);
+      else setDeal(key, pill);
+      applyFilters();
+    });
+  });
+
   const budgetSel = document.getElementById('filter-budget');
   if (budgetSel) budgetSel.addEventListener('change', applyFilters);
 
@@ -415,6 +525,7 @@
         p.setAttribute('aria-pressed', 'false');
       });
       state.beds.clear();
+      setDeal('', null);
 
       if (msArea) { msArea.clear(); state.areas = []; }
       if (msFloor) { msFloor.clear(); state.floors = []; }

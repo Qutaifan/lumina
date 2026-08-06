@@ -331,6 +331,27 @@
     })();
   };
 
+  /* Levitation is a compositor animation per card, and the portfolio grid
+     holds over a hundred of them — all ticking, on or off screen, on a
+     phone as much as a laptop. This parks the ones nobody can see. Paused
+     rather than removed, so a card resumes where it left off instead of
+     snapping back to phase 0 and pulsing in step with its neighbours. */
+  let restIO = null;
+  const restOffscreen = scope => {
+    if (reduce || typeof IntersectionObserver !== 'function') return;
+    if (!restIO) {
+      restIO = new IntersectionObserver(entries => {
+        entries.forEach(en => en.target.classList.toggle('rest', !en.isIntersecting));
+      }, { rootMargin: '260px 0px' });
+    }
+    (scope || document).querySelectorAll('.prop-float').forEach(el => {
+      if (el.dataset.rest) return;
+      el.dataset.rest = '1';
+      el.classList.add('rest');       // nothing runs until it is seen
+      restIO.observe(el);
+    });
+  };
+
   /** Call after injecting cards. Idempotent. */
   Lumina.activateCards = scope => {
     if (typeof Lumina.refreshReveals === 'function') Lumina.refreshReveals();
@@ -339,6 +360,7 @@
     if (typeof Lumina.bindTilt === 'function') Lumina.bindTilt(scope);
     else localTilt(scope);
 
+    restOffscreen(scope);
     ensureParallax();
   };
 })();

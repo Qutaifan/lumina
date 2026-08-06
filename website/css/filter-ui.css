@@ -37,7 +37,11 @@
   border-bottom: 1px solid var(--lum-hair);
   padding: 16px 0 14px;
   position: sticky;
-  top: 0;
+  /* The brand bar is position:fixed, so a bar stuck at top:0 parks its first
+     row underneath it — the type pills were invisible the moment the page
+     scrolled. js/listings.js measures the header and publishes --bar-h; the
+     fallback is the bar's own resting height. */
+  top: var(--bar-h, 64px);
   z-index: 60;
 }
 

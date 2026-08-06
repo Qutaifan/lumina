@@ -133,6 +133,31 @@ unwindowed rail pulls the whole gallery on open.
 `listings.js` sets it so a gallery opened from the portfolio still has an enquiry route;
 the landing page and the area previews leave it undefined and the link stays hidden.
 
+**2d. `css/style.css` and `css/property-ui.css` both define `.card-badge`.**
+Every page except `index.html` loads the old system first, and its badge is
+pinned `left:16px`. `property-ui.css` set only `right`, so both offsets
+applied and the badge stretched the full width of every card — the word RENT
+printed on a gold bar across the photograph, hiding the location tag
+underneath it. The component now resets the opposite edge on all three media
+chips (`left:auto` / `right:auto` / `top:auto` / `bottom:auto`). When adding
+another absolutely-positioned chip to the card, set all four.
+
+**2e. The filter bar sticks below the brand bar, not at zero.**
+`.bar` is `position:fixed`, so `.filter-bar { top: 0 }` parked its first row
+underneath it and the type pills were invisible the moment the page scrolled.
+`js/listings.js` measures the header and publishes `--bar-h`; `filter-ui.css`
+sticks to `var(--bar-h, 64px)`. The height is a `clamp()`, so it is measured
+rather than assumed, and re-measured on resize. Below 680px the bar is not
+sticky at all — stacked it is 240px tall, which is a third of a phone screen
+spent on controls.
+
+**2f. Levitation is paused off screen.** A hundred-odd cards each running a
+`transform` keyframe is a hundred-odd compositor animations ticking whether
+or not anyone can see them. `property-card.js` observes every `.prop-float`
+and toggles `.rest`, which sets `animation-play-state: paused`. Paused, not
+cancelled: a cancelled animation restarts at phase 0 and the grid pulses in
+unison, which is the one failure mode the whole `FLOAT` table exists to avoid.
+
 **7. Paths in `data/lumina-demo-leads.json` are root-absolute and must be stripped.**
 Every `image_url` / `images[]` entry starts with `/`, which resolves fine on a domain root
 and 404s under a GitHub Pages project path (`/lumina/`). `Lumina.relPath` does the strip;
@@ -159,6 +184,37 @@ listener. Add new scroll work to that loop — do not add another `scroll` liste
 or scroll progress tracking goes stale through it.
 
 **6. No browser storage.** No `localStorage` or `sessionStorage` anywhere.
+
+**8. The home collection is eight cards, and eight is load-bearing.**
+The first card carries `.wide` (`grid-column:span 2`), so the grid holds nine cells, and
+nine only divides cleanly by three. The shared `.grid-props` is `auto-fill minmax(300px,1fr)`,
+which is right for the full portfolio but yields **four** columns past ~1300px and **three**
+around 1100px — either leaves the last card alone in a row of gaps. `index.html` therefore
+pins `#home-collection-grid` to three columns above 1180px (where `.wide` still spans two)
+and two below it (where `property-ui.css` collapses `.wide` to one). Under 760px the shared
+rules already give one or two columns and eight divides into both. Change `FEATURED` in
+`home-collection.js` and you must re-check every one of those bands.
+
+**10. The phone menu is generated from the bar, so editing the bar edits both.**
+`js/nav-menu.js` builds the sheet from `.bar .nav a` (minus the WhatsApp chip). Removing a
+link from the bar removes it from the phone menu too — that is the intent, but it means a
+bar link is never "desktop only". `index.html`'s bar deliberately has **no Team link**: on
+that page the bar is in-page anchors plus Properties, and the team card in `#advisory` is
+the route to `team.html`. The footer keeps a text link so the destination is never one
+hover away from unreachable. Every other page still carries Team in its own bar.
+
+**11. The team card follows the same two-element transform rule as the property cards.**
+`.team-cta` owns the `.rv` reveal transform; `.team-card` inside it owns `.tilt`, whose
+handler writes an inline transform. On one element the first pointer crossing kills a
+reveal still in flight. The card's pointer sheen reuses the `--sx`/`--sy` custom properties
+`bindTilt` already writes — adding `.tilt` is the entire wiring, no new listener. Under
+reduced motion `bindTilt` never binds, so the sheen simply stays off.
+
+**9. `quality_score` is record completeness, not photo quality.**
+It comes from the Excel import and 86 of 118 records score 5. It is fine as a "did this row
+arrive whole" filter and useless as a ranking signal for how good a listing looks. Nothing
+in the data describes the photographs — that is why the shop-window covers are curated by
+eye in the JSON rather than scored.
 
 ## Asset provenance and constraints
 
@@ -285,12 +341,29 @@ Every asset depicts the same property. When adding imagery, vary the **crop and
 `object-position`** rather than repeating an identical framing — the villa already appears
 in the band and the wide Cedar House card, and a third identical use reads as a slideshow.
 
-## The listing data — repaired 2026-07-28, read before re-importing
+## The listing data — repaired 2026-07-28, re-imported 2026-08-04
 
 `data/lumina-demo-leads.json` came out of a spreadsheet with no validation and
 went through six repair passes. **If the source is ever re-imported, every one of
 these will come back.** The scripts that did the work are disposable, but the
 rules are not.
+
+**They did come back.** The 2026-08-04 re-import from `Lumina 2026.xlsx` hit the
+same Excel date serials in `Beds` (refs 127, 132), the same `!st floor`, the same
+per-m² rates sitting in the price column, and the same five sub-2,000 rents — and
+reproduced exactly the same `needs_price_review` set, **108, 114, 116, 127, 132**,
+without being told to look for them. Every rule in the table below was reapplied.
+Two things are worth carrying forward:
+
+- **Identical specs are not a duplicate.** The first dedup pass collapsed seven
+  pairs (035/071, 048/084, 072/085, 083/082, 111/109, 123/112, 143/142) that are
+  simply two 2-bed Abdoun flats at the same rent. A row that brought its own
+  photo folder is its own property; only collapse rows that brought no photos.
+- **The area and insight pages hardcode counts.** The prose and the at-a-glance
+  tables quote per-district counts, mixes and medians as literal text. They are
+  generated once, not at runtime, so a re-import silently makes them wrong —
+  Abdoun went 61 → 78, the Circles 18 → 25, Swefieh 9 → 10. Recompute and edit
+  them in the same pass, or the pages start lying.
 
 | Problem | What it looked like | Fix |
 |---|---|---|
@@ -317,6 +390,113 @@ Repair the field and regenerate; do not edit the sentence.
 withheld, never replaced with a guess. `price_unit` and `needs_price_review` exist
 so the UI can say what it does not know.
 
+**Owner and guard phone numbers are columns 15 and 16 of the sheet and never
+enter the JSON.** That file is fetched by the browser, so anything in it is
+published. Keep the import's column allow-list explicit.
+
+### The 2026-08-05 clean-up — 141 records became 118
+
+The portfolio was cut to what can be shown honestly. Everything removed is
+archived, with its photographs, at `../_removed-listings-2026-08-05/`
+(`removed.json` plus the four orphaned image folders) — nothing was deleted.
+
+| Removed | Why |
+|---|---|
+| 19 records: 017–021, 031, 038, 080, 117, 118, 151, 153–156, 158–161 | no photographs at all. They rendered as "Photography on request" placeholders, and because the grid is ref-ordered they landed together at the top of the page — the first screen of the portfolio was a wall of empty frames |
+| 094, 096, 131 | every file in the gallery also sits in another property's folder. A listing showing another property's rooms is worse than one showing none |
+| 093 | same, and its whole gallery was assembled out of 090's and 091's folders |
+
+**The rule, if this is ever re-run:** a record survives if it has at least one
+photograph that is *its own*. The one exception is a clone group — several
+rows off a single shoot, where the files belong to nobody outside the group
+(130/131 came from one folder named `2026-130-131`). There the lowest ref
+survives, because dropping the whole group would lose a real property.
+`093/094/096` did **not** qualify: their shared gallery belonged to 090 and
+091, so there was no property behind it to keep.
+
+After the cut: 118 residences, 1,179 photographs, no record without photos,
+no two records sharing a file, no duplicate cover images.
+
+**`data/lumina-demo-leads.json` now carries `?v=` like every other asset.**
+It did not, so a returning visitor kept the copy their browser had cached —
+which after a clean-up means they keep the records that were removed. All
+five fetches of it (`listings.js`, `areas.js`, `home-collection.js`,
+`property-details.js`, `consult-form.js`) carry the marker; bump all five
+together whenever the data changes.
+
+### Photos
+
+Each property folder in the client's drop holds its photos numbered from `1`, and
+**`1` is the cover** — it becomes `01.jpg` and is what the card shows. Two traps:
+
+- **Only the root level of a property folder is its photo set.** The `New folder`
+  subdirectories are the raw camera/WhatsApp dump, sometimes nested twice, and
+  several hold another property's files outright (`Rent/2026-102/New folder`
+  contains ref 031's spreadsheet; `Rent/2026-133/New folder` contains ref 105's
+  documents). Pulling them in mixes properties together.
+- **A stray `00.jpeg` will steal the cover** from `1.jpeg` under any plain numeric
+  sort. The convention starts at 1; sort anything below it to the back.
+
+Import is max side 1920 px, JPEG q82, capped at 12 per listing, EXIF orientation
+applied and then stripped.
+
+**Six covers are curated, not imported (2026-08-06).** The client's `1` is whatever
+the photographer shot first, which for several records is a bedroom, a parasol from
+underneath, or a console table against a bare wall. Where a record's own gallery held
+an obviously stronger opening shot, that photo was moved to the front of `images` and
+`image_url` repointed at it:
+
+| Ref | Now leads with | Instead of |
+|---|---|---|
+| 042 | `11.jpg` sunlit garden | a lawn strip in shadow |
+| 070 | `11.jpg` the garden the title promises | a bedroom |
+| 040 | `03.jpg` the daylit angle | the darkest of three shots of one room |
+| 133 | `02.jpg` the view over Amman | a console against a bare wall |
+| 079 | `04.jpg` the main reception | the underside of a parasol |
+| 052 | `02.jpg` wider, better lit | the same room, tighter |
+
+Move the photo to the **front of `images`**, never just repoint `image_url` — the
+viewer opens at `images[0]`, so repointing alone makes the gallery open on a different
+room than the card showed. No record ever takes a photo that is not its own, so covers
+stay unique across all 118.
+
+## The consultation form — and why it hands off the way it does
+
+The hero CTA opens `#cf` (`js/consult-form.js`) instead of jumping into an
+empty WhatsApp chat. Three fields: name, up to three property references,
+comments.
+
+**wa.me cannot carry an attachment.** WhatsApp's click-to-chat API prefills
+message text and nothing else — there is no file parameter, and no amount of
+URL work will add one. Combined with `script-src 'self'` (no CDN PDF library)
+and `connect-src 'self'` (no upload endpoint), that leaves exactly one route:
+
+- **Phones** — `navigator.share({files})` opens the system share sheet with the
+  PDF attached; the client picks WhatsApp and it goes as a real document.
+- **Desktop** — most desktop browsers refuse file shares, so the PDF downloads
+  and wa.me opens with the same details as text. The confirmation says so
+  rather than implying the file went by itself.
+
+A cancelled share sheet throws `AbortError` and is **not** treated as a
+failure — the form is left as it was so nothing has to be retyped.
+
+The PDF is written by hand in `buildPdf()`: a six-object PDF 1.4 using the two
+standard Helvetica faces, which need no embedding. That keeps the no-dependency
+rule intact, but the standard fonts are **Latin-1** — an Arabic name will not
+survive the encoding and comes out as `?`. This is why the full details always
+also travel as message text, which is Unicode. Do not "fix" the PDF by dropping
+the text payload.
+
+Reference chips are validated against `data/lumina-demo-leads.json` so the
+client sees the property title as they type, but **a failed lookup never blocks
+a submission** — an unrecognised ref goes through unverified rather than being
+refused. Three is a hard cap.
+
+`#cfOpen` is still a real `wa.me` anchor. Without JS it opens the chat exactly
+as it always did; the form is the enhancement, not the baseline. The panel
+takes its `--cf-dx/--cf-dy` from the button's position so it grows out of the
+CTA — recomputed on resize, and disabled under reduced motion.
+
 ## Content that is still placeholder
 
 Flag these rather than building on them as if true:
@@ -329,12 +509,386 @@ Flag these rather than building on them as if true:
   annual — refs **108, 114, 116, 127, 132**. Confirm the period and clear
   `needs_price_review` on each
 
+### `invest.html` — what is real and what is not
+
+The page was written with **no data at all** about the buildings. What is real is only what
+the client stated: there is one contractor building to a high specification, one lead
+engineer on that contractor's side, **Mohannad Altall**, their newly completed buildings
+reach Lumina before they are listed, **the contractor owns them**, and Lumina markets them
+for a commission. Everything on the page is built to be true of that and nothing more.
+
+**Lumina is the agent, not the owner. This is not a tone choice — it is the commercial
+fact, and every section says it.** The contractor owns the land and the building and is the
+vendor; Lumina introduces, advises and negotiates, and is paid on completion. Do not write
+copy anywhere on this page that implies Lumina holds the title, sets the price, or carries
+the warranty — "our buildings", "we are selling", "our development" are all wrong. The
+`#role` section exists specifically to state this, and the credentials band, `#terms`, the
+register list and the footer each carry a line of it. If a rewrite makes one of them vaguer,
+it is a regression.
+
+**The commission rate is not on the page and must not be invented.** "Competitive" is a
+description; the number is a real figure the client has not supplied. It goes in the
+`.role-fee` line and the `Our commission` cell of `#terms`, and nowhere else — and the note
+under `#terms` already says out loud that competitive is not a rate. Ask before putting a
+percentage anywhere.
+
+Deliberately **not** on the page, because inventing any of it on an investment page would be
+worse than inventing a listing: any address, any building count, any unit mix, any floor
+area, any price, any yield or return, any completion date. Every one of those renders as
+"on application", which is also how the rest of the firm behaves.
+
+- **The section drawing is schematic and says so** — in the title block (`INDICATIVE
+  SECTION / NTS / ON APPLICATION`) and again in the note under `#terms`. It shows how a
+  building of this kind is put together, not the schedule of any one of them. The whole
+  thing comes from the `LEVELS` table at the top of `js/invest.js`: replace that table with
+  a real schedule and the drawing, the level tags, the reading panel and the keyboard order
+  all follow. If it ever describes a *specific* building, delete the "schematic" note in the
+  same commit — the disclaimer is what makes the invented level names honest.
+- **The programme is FOUR stages, not six, and stage 03 holds three phases.** Envelope,
+  services and finishes were stages 03/04/05 — which is how a programme of works is drawn and
+  not how anybody in Amman talks or pays. Locally the whole of it is *tashteeb*: a flat sells
+  on the shell or finished, the three phases are quoted, sequenced and paid for together, and
+  a buyer choosing a stage is choosing between shell and finished. So they are one stage with
+  three phases nested under a bracket, `.prog-step.is-group` spans three of the six grid
+  columns because it really is three times as long, and `js/invest.js` lights the phases
+  inside their parent's own slice of the rail rather than counting them as stages. **Do not
+  flatten them back.** The stages themselves are generic and true of any build; no timings.
+- **Mohannad Altall has no portrait** — the card uses the `MA` monogram in the same language
+  as `team.html`, because there is no photograph of him on file. Ask before adding one.
+- If the client supplies real particulars, the honest order is: real data into `LEVELS`
+  first, then remove the schematic note, then add figures. Not the other way round.
+
+### `#build` — the scroll-assembled section, and the four traps in it
+
+It is the **first** section on the page: the page opens on an empty plot and the building
+goes up as you scroll. `js/invest.js` turns the pinned section into one `0…1` progress and
+every moving thing is a pure function of it — nothing holds a timer, so scrubbing backwards
+is exact. The phase constants are documented above the `.build` rules in `invest.html`.
+
+Four things here were broken once and will break again the same way:
+
+1. **The camera has to ride the work.** `.bld` is a fixed-height, bottom-anchored column, so
+   the part that has been built is always at the *bottom* of a box that never changes size.
+   Left at a fixed offset, the first half of the scroll frames an empty rectangle with the
+   ground line hanging off the bottom edge. `--cam-y` is driven from the assembly's own
+   progress (`built`), not from `p`, so the rise is the building's and not the scrollbar's.
+2. **The construction line takes the FIRST match, not the last.** The levels overlap by
+   design (`OVERLAP = 1.7`), so at any moment several are still moving and the one below is
+   always the last to settle. Taking the last in-progress index pinned the line to the
+   basement for the whole first quarter.
+3. **`fit()` measures, it does not calculate.** Only the slab heights scale with `--k`;
+   borders, the 3px floor-slab margins and the ground line do not. It sets `--k:1`, reads
+   `offsetHeight` (**not** `getBoundingClientRect` — the camera above it is scaled), and
+   treats everything above the sum of the slab heights as fixed. It also has to subtract the
+   frame's own padding, because `.stack-frame` reserves room at the foot for the title block.
+   And it only runs while the pin is on: below 861px and under reduced motion the frame is
+   `height:auto`, so measuring it there feeds the scale back into itself.
+4. **`.build-pin` needs an explicit `grid-template-rows`.** With `place-items:center` and an
+   auto row, the row is content-sized, `.stack-stage { height:100% }` has nothing definite to
+   resolve against, and the stage quietly grows past a pin that clips — at 1024 that put the
+   scroll cue and the entire reading panel below the fold. `grid-template-rows:minmax(0,1fr)`
+   with `align-items:stretch` is what makes every measurement below it mean anything.
+
+The reading panel has **two** states and they are not the same moment: `.reading` (p ≥ 0.22,
+once the title has cleared) narrates whichever slab is being placed, and `.armed` (p ≥ 0.86)
+is when the levels become controls. Both must be added by `flat()` too, or the panel is
+invisible on phones and under reduced motion.
+
+### The float stack and the glass, on invest.html
+
+Every card below the build section is **four nested elements**, and each one owns a transform
+— transforms do not compose on a single element, the last declaration simply wins:
+
+```html
+<div class="float rv">                 <!-- the reveal -->
+  <div class="depth" style="--d:20px"> <!-- cursor parallax -->
+    <div class="lev" style="--dur:12.5s;--amp:7px;--rot:.2deg;--delay:-1.2s">  <!-- levitation -->
+      <article class="why-card tilt"><span class="spec"></span>…</article>     <!-- .tilt -->
+```
+
+The card itself must stay free of the other three, because `js/lumina.js`'s `.tilt` handler
+writes an **inline** transform on hover (`perspective … rotateX … translateY(-6px)`) and
+would silently erase whichever of them shared its element. `.float` and its two wrappers pass
+`height:100%` through so a card can still stretch to its grid row. Keep `--dur`, `--amp`,
+`--rot` and `--delay` uncorrelated per card — identical values make the row pulse in unison,
+which reads as a loading state.
+
+`.spec` is the shared tracking sheen: `.tilt` writes `--sx`/`--sy` as the pointer crosses the
+card, so one rule serves `.why-card`, `.role-card` and `.eng-card`. Any new card gets a
+`<span class="spec">` as its first child and `position:relative; z-index:2` on its siblings.
+
+`backdrop-filter` is gated at `min-width:1024px` for every one of these surfaces. Three
+panels in the pinned build stage already use it; below 1024 the cards fall back to their
+translucent gradient, which is most of the look. Do not remove the gate to "fix" a phone.
+
+`.terms` uses **explicit** column counts (3 / 2 / 1), not `auto-fit`. Its 1px gaps are the
+container's own background showing through, so a row that does not fill leaves a lit band
+across the empty half — with six cells, `auto-fit` landed on five-plus-one at 1440.
+
+## Services, and the three pages under it
+
+`services.html` is the parent of `invest.html`, `property-management.html` and
+`property-evaluation.html`. **The bar link is Services on every page** — Invest lost its own
+slot when it became a child — and the home page carries a `.svc-btn` beside the existing
+Invest button. `js/nav-menu.js` builds the phone sheet from `.bar .nav a`, so editing the bar
+edits both; keep the six links identical across pages or the phone menu differs per page.
+
+### The bubble field on `services.html`
+
+**Two states, and the grid is not a fallback.** The markup is a list of links in a
+`repeat(auto-fit, minmax(230px,1fr))` grid, and that is what renders with no JS, under
+reduced motion, and below 901px — on a phone it is the real layout. `js/services.js` adds
+`.live`, which drops the grid and switches the links to absolute positioning; from then on
+the script owns exactly one property per bubble, the transform, and the stylesheet owns
+everything else. Neither reaches into the other's half. Going live is re-decided on every
+resize, and leaving live hands `transform`, `opacity`, `z-index` and `--sz` back or the
+bubbles strand off-grid.
+
+**The shape moves without animating a shape.** Site rule is transform and opacity only, so
+there is no morphing `border-radius` anywhere. Each shell has a *static* irregular radius and
+rotates very slowly — rotating an irregular outline genuinely changes the silhouette, on the
+compositor — and the halo behind it counter-rotates at an unrelated period so the two never
+visibly repeat. Content sits in its own upright layer.
+
+**Bubbles must not use `.tilt`.** `js/lumina.js`'s tilt handler writes an inline transform,
+which is the one thing the rAF loop owns. `services.js` writes `--sx`/`--sy` itself.
+
+Four things that were wrong once and will go wrong the same way again:
+
+1. **Repulsion is scaled by `(1 - hov)`.** Without it the bubble you point at runs away from
+   the cursor as it is chosen, fighting the hover it just triggered.
+2. **The chosen rim lives on the shell, not on `.bub-ring`.** The ring does not turn, so when
+   it carried the rim too the two outlines sat out of phase and the bubble grew a second
+   edge. `.bub-ring` is now the focus indicator only, where an offset outline is correct.
+3. **`align-items: stretch` on the two-column stage.** Centring the items stops the field
+   stretching to its row, so it falls back to its own `min-height` — 340px inside a 720px
+   row. The head is centred on its own instead. Same trap as `.build-pin` on invest.html.
+4. **The field has no tall `min-height`.** It is the `1fr` row of a `100svh` section; a floor
+   taller than that row pushed the whole ring below the fold.
+
+The hub reads from `data-name`, not from the bubble's label — the label carries a `<br>` so it
+can break inside a round shape, and its `textContent` comes out as `Propertymanagement`.
+`data-a` / `data-r` place each bubble by hand (+90 is the front of the ellipse, biggest and
+brightest); leave them off and a fourth service is spaced evenly for free.
+
+### The district quiz (`#qz`, `js/quiz.js`, `css/quiz.css`)
+
+Five questions, every answer a tap, and it names two districts. **Two doors, one quiz:** the
+fourth hero panel on `index.html` (`#qzOpen`, a `.stat-card--act` matching the commission
+card) and a `.qz-cta` glass card under the hero on `areas.html` — the page where a reader who
+has scrolled nine districts and still cannot choose actually is.
+
+**The wording rule, and it is the one that matters.** Every option has to be understood
+without decoding it. An earlier cut offered *"the address"* and *"old stone"* — both perfectly
+clear to an estate agent and to nobody else — and a question phrased *"you would trade up
+for…"*. If a label needs the hint underneath it to make sense, it is the wrong label. Plain
+words, one parallel construction per question, four words maximum. Q5 in particular is a
+concrete choice (*"Same rent, three flats. Which do you take?"* → biggest / best
+neighbourhood / most character) rather than an abstraction, because it is the tiebreak and an
+abstract tiebreak gets answered at random.
+
+`css/quiz.css` carries the sheet shell **and** the quiz interior for every page except
+`index.html`, which has the whole elevated shell inline already. That is two copies of the
+`.cmx` block — the same trade the tokens make. The quiz's **content** is not duplicated: the
+questions, options, scoring and wording live only in `js/quiz.js`, for both doors.
+
+**It reuses the commission sheet's entire shell.** `hero-panels.js`'s `initSheet` now takes
+`(openerId, sheetId)` and is called twice, so the veil, panel, close button, focus trap,
+Escape and scroll lock have ONE implementation and the two dialogs cannot drift apart.
+`quiz.js` renders into `#qzBody` and owns nothing else. If you add a third sheet, call
+`initSheet` again — do not copy it.
+
+**Why these five questions.** Price barely discriminates between these districts — within a
+band you can find the same money in six of the nine. What actually separates them is the
+commute, what is under the window, whether you walk or drive (the defining Amman question —
+exactly two of the nine are walkable and newcomers from walkable cities are the ones most
+often housed wrong), who is coming, and what you would trade up for. Budget is deliberately
+**not** asked: a number there would anchor the answer and we have stock across the range.
+
+**The scoring is an opinion and the panel says so.** Each option carries a district→points
+map and a `why` string; the result plays the reader's own answers back as the reasoning, so
+someone who disagrees can see which answer did it. Options that score every district equally
+("Either", "No fixed office") correctly contribute no reason. It always names a **second**
+district — two is the honest answer to five questions — and ends on a route to a person.
+
+Counts ship as literals and are corrected from `data/lumina-demo-leads.json`, same as
+`areas.html`. Keep the seven district groups and their `keys` in step with that page.
+
+**`.cmx-panel` gets a real background below 1024px**, because `backdrop-filter` is gated off
+there and the glass had nothing to blur — the hero headline read straight through both
+sheets on a phone. The top highlight and border are what make it read as glass; the blur was
+only ever making it legible.
+
+### `areas.html` — the districts, and the third scroll mechanism
+
+The destination of the **Areas** link in every bar (it used to go straight to
+`areas-abdoun.html`, which named one district and hid eight). Files: `areas.html`,
+`js/areas-index.js`, no new CSS file — it uses `css/elevated.css` plus its own block.
+
+**It is deliberately NOT a third pinned scrub.** `invest.html` and `room.html` both pin a
+section and scrub a 0…1 progress through it; a third would make the site feel like it has one
+idea. Here the plan is `position:sticky`, the districts scroll past it, and an
+`IntersectionObserver` with a `-34%` rootMargin hands the plan whichever district is in the
+middle third of the viewport. **There is no scroll listener on this page at all.** The plan
+then pans and scales to the centroid of that district's node(s) — one transform, read off the
+nodes' own `data-cx`/`data-cy`, so moving a district on the drawing moves the camera with it
+and the two cannot disagree.
+
+`data-node` is a comma list because **the Circles are one district to a reader and three
+nodes on a map**; lighting all three and centring on their midpoint is the case that rule
+exists for.
+
+**Every number on the page is counted, not estimated.** Nine districts, 118 records, from
+`data/lumina-demo-leads.json`. Each figure ships as a literal so the page is right with the
+script blocked, and `areas-index.js` re-counts from the data on load and corrects it — the
+`[data-count]` attribute holds the data's own location strings (note `Shmesani`, which is how
+it is spelled in the data, against `Shmeisani` in the prose). **There are no price figures
+here and there must not be:** the neighbourhood JOD/m² numbers elsewhere on this site are
+flagged as placeholder above, and a district page is exactly where a placeholder price gets
+quoted back as fact for years.
+
+**The plan is indicative and says so, in the caption.** Relative positions and the Zahran
+spine through the Circles are the whole of the claim. Node radius scales with stock, so
+Abdoun is visibly two thirds of the book.
+
+### `room.html` — the scroll-to-furnish room
+
+The site's second and larger scroll set-piece: a 460vh pin in which an empty one-point
+perspective interior furnishes itself over nine pieces while the sun crosses the floor and
+hands the room over to a lamp. Reached from the `.fab` glass pill on `index.html` (bottom
+left) and from the footers. Files: `room.html`, `css/room.css`, `js/room.js`.
+
+**Nothing in it is placed by eye, and that is the point.** Two formulas at the top of
+`css/room.css` generate every coordinate: a depth projection `x(x0,y) = 880 + (x0−880)·(y−470)/229`
+and a height rule `top_y = yf − 1.8865·h·(yf−470)`. The back wall is the frame scaled by
+k=0.432 about the vanishing point (880, 470), which is why the floor grid's two outermost
+orthogonals land exactly on the frame's bottom corners — the construction checking itself.
+**Every receding edge points at (880, 470). One that does not is a bug, not a style choice.**
+
+Five things that will go wrong the same way again:
+
+1. **`.ln` is taken.** It is `elevated.css`'s per-line headline reveal and ships with
+   `opacity:0`. Used for the room's line-work it made every line in the drawing invisible and
+   the room rendered as flat silhouettes — the same class of bug as `.win` on `invest.html`.
+   The room's line class is `.rln`. **Check any new class on this page against the shared
+   sheets before using it.**
+2. **`osc(t,n,d)` is 1 at t=0, not 0.** It is a *decaying* oscillator and only ever belongs
+   after a landing. Applied across a whole span it parks the piece at its amplitude from the
+   first frame — which is exactly what left the plant pot faintly visible over an empty plot.
+3. **The reading panel takes the LATEST-started live piece** — the inverse of `invest.js`,
+   which takes the first because the top slab is the interesting one when a building goes up.
+   When a room fills, the newest and nearest thing is. Copy invest's line verbatim and the
+   panel talks about the rug while the picture is visibly swinging.
+4. **`getBBox()` on a transformed group returns the untransformed box**, which is what makes
+   the nine hit targets measurable — but they are measured once with every piece at `--p:1`
+   and then restored. Measured mid-arrival all nine land somewhere wrong, and because they
+   are invisible it reads as a mysterious offset rather than a measurement bug.
+5. **There is deliberately no `fit()`.** `viewBox` + `preserveAspectRatio` does declaratively
+   everything `invest.js`'s resize-measuring pass does imperatively. Do not helpfully re-add
+   one; there is nothing here for it to measure, and a comment in `room.js` says so.
+
+**No `filter` anywhere on the page** — not animated, not static, not on the shadows. A static
+filter inside a scaling camera re-rasters its whole region every frame the camera moves.
+Every glow, bloom, pool and shadow is a gradient on a rect or an ellipse. (`clipPath` is
+fine and is used once, to keep the sun and the skyline inside the window aperture.)
+
+Three deliberate exceptions and placements, decided once:
+
+- **The pointer parallax is the one motion that is NOT a function of p, on purpose** — a
+  pointer is not a scrollbar. `room.js` springs `--par-x/--par-y` a few px toward the cursor
+  on its own small rAF (gated `hover:fine`, dead under reduced motion, stops when settled),
+  and the term rides the same transform chain as the dolly so the hit targets can never
+  drift off the drawing.
+- **The vignette (`#vig`) is screen-space, outside `#cam`.** Scaled with the dolly it would
+  read as the room darkening at its own edges rather than the frame having depth.
+- **The dust (`.dm`) and the fab's idle animations are CSS keyframes, not p-driven** — they
+  are ambience, not choreography, and both die under reduced motion.
+
+The window's mullion/sky group also carries curtains, a skirting/cornice pair (`#trims`,
+both derived from the height rule at h=.04 and h=.96), a clipped skyline + travelling sun,
+and the floor pool translates with `--pool-x` so the patch of light crosses the room with
+the sun that casts it.
+
+**Honesty.** The room is a drawing and the page says so three times — the title block, the
+note under `#offer`, and the line the page exists to earn: *the room is a drawing, the
+properties are real, we do not sell the sofa — we find the room.* Lumina does not supply,
+sell or specify furniture. If a rewrite ever softens that into "Lumina furnishes homes" it is
+a regression, because it is not true and it is not the business.
+
+### The shared section vocabulary — do not diverge from it
+
+The three service pages deliberately use **the same kickers, in the same order**, so a reader
+who has scanned one already knows where things are on the next. The `.tip` on each spine dot
+matches its section's kicker word for word — they are the page's table of contents and they
+must not drift apart.
+
+| Order | Kicker | What belongs in it |
+|---|---|---|
+| 1 | `Services · <name>` | the hero: what the service is, in a plain descriptive headline |
+| 2 | *(inside the hero)* | `.whofor` — "Right for you if", three qualifying lines |
+| 3 | `Why it matters` / `Why this route` | the argument, and the one diagram |
+| 4 | `What is included` / `What you get` | the scannable list |
+| 5 | `How it works` | the process |
+| 6 | `Fees and terms` | the ledger, and the no-figures note |
+| 7 | `Get started` | the WhatsApp form |
+| 8 | `Also from Lumina` | `.more-card` links to the other two |
+
+Two rules that are easy to lose:
+
+- **Headings name their content; ledes carry the voice.** The house style is aphoristic
+  ("A number is easy. A number you can defend is the work.") and that is an asset — but an
+  aphorism as an `h2` tells a scanning reader nothing. Put the plain statement in the
+  heading and the sharp line in the lede underneath. Every heading on these pages was
+  rewritten once for exactly this reason.
+- **`.whofor` and the `#more` strip appear on all three pages, in the same position.** They
+  are the navigation, not decoration: `.whofor` answers "am I in the right place" before the
+  reader has scrolled, and `#more` stops each page being a dead end. `#more` also needs its
+  own spine dot — see the spine rule above.
+
+`invest.html` carries **its own copy** of the `.whofor` and `.more-*` CSS, because it does
+not load `css/elevated.css`. Change one, change both. Its `.creds` rules are scoped
+`.creds>ul>li` and must stay that way: as plain `.creds li` they reached into the `.whofor`
+list that sits in the same band and drew every qualifying line as a bordered tile.
+
+### What is real on the two new service pages
+
+Same rule as `invest.html`. **There is no fee, no percentage, no turnaround in days and no
+JOD/m² figure on either page, and none may be invented.** Both say out loud why: a management
+fee quoted before anyone has seen the property is padded or about to be revised, and a
+per-metre rate quoted without the property attached is the thing an evaluation exists to
+replace. The neighbourhood per-metre numbers elsewhere on this site are flagged as
+placeholder above — do not repeat them on `property-evaluation.html` as if they were
+evidence. What is real: the service, West Amman, the WhatsApp number, and that fees are
+quoted per instruction.
+
+`js/service-form.js` is shared by both. It reads every `.field` in `#regForm` and uses the
+label's own text, so adding a field to either page appears in the WhatsApp message with no
+change to the script. `<body data-subject="…">` is what the greeting says it is about.
+
 ## Pages, and which cluster they belong to
 
-`index.html` is the "elevated" design (inline CSS, `--gold: #FFB25A`, Instrument type).
-Every other page is the older system (`css/style.css`, `--gold: #C2A35A`, Inter). They
-share `css/property-ui.css` and the property card, and nothing else. Do not assume a token
-defined on one is available on the other.
+`index.html`, `invest.html`, `services.html`, `property-management.html` and
+`property-evaluation.html` are the "elevated" design (`--gold: #FFB25A`, Instrument type).
+Every other page is the older system (`css/style.css`, `--gold: #C2A35A`, Inter). They share
+`css/property-ui.css` and the property card, and nothing else. Do not assume a token defined
+on one is available on the other.
+
+**The elevated cluster now has two ways of getting its shell, and that is deliberate.**
+`index.html` and `invest.html` each carry their own inline copy. The three newer pages link
+`css/elevated.css`, which holds the same tokens plus the shared type, bar, spine, buttons,
+`.card-g`, `.terms`, `.points`, `.ticks`, the form and the footer. Three pages landed at once
+and pasting four hundred identical lines into each was indefensible; extracting index.html
+into it still is not worth it. **So the tokens live in three places — index.html,
+invest.html, and css/elevated.css. Change one, change all three.** Never load
+`css/elevated.css` on a page that loads `css/style.css`: the two disagree about `--gold` and
+about the body font.
+
+What none of them duplicate is *behaviour*: every elevated page reuses `js/lumina.js`
+wholesale, which is why each carries `#boot`, `#glow`, `#bar`, `#spine`, `#fill` and `#yr` —
+that file reaches for them by id and throws without them. In exchange each page gets the
+reveal observer, the per-line headline split, the cursor light, the `.tilt` specular and
+`.mag` magnetics for free. They all load `css/mobile.css` + `js/nav-menu.js` for the phone
+bar and menu sheet; without them a six-link bar pushes the document 60px sideways at 390px.
 
 **The area and insight pages were repointed on 2026-07-28.** They used to be Abdoun /
 Dabouq / Dead Sea, and the site has never held a single listing in Dabouq, the Dead Sea,

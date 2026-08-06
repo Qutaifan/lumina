@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Luxury Properties in Amman — Lumina Real Estate</title>
   <meta name="description" content="Every residence Lumina currently holds in Amman — Abdoun, Swefieh, the Circles, Shmesani, Jabal Al Weibdeh, Um Uthaina and Dair Ghbar. Filter by area, type and budget." />
   <meta name="robots" content="index, follow" />
@@ -30,28 +30,57 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/lumina-logo.png" />
 
-  <link rel="stylesheet" href="css/style.css?v=2026-07-28b" />
+  <link rel="stylesheet" href="css/style.css?v=2026-08-07b" />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSerif.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSans.woff2" crossorigin>
   <style>
-    /* ---- PAGE HEADER ---- */
+    /* ---- PAGE HEADER ----
+       The photograph is the room, not a texture: it sits at a workable
+       opacity behind a two-stop scrim rather than being washed out, and it
+       drifts slowly so the frame is never quite still. Everything that
+       moves here is transform or opacity only. */
     .page-header {
       background: var(--navy-deep);
-      padding: 200px 0 90px;
+      padding: clamp(150px, 21vh, 226px) 0 clamp(78px, 10vh, 104px);
       position: relative;
       overflow: hidden;
     }
     .page-header-bg {
       position: absolute;
-      inset: 0;
-      background: url('assets/images/demo-villa-terrace-01.jpg') center 40%/cover no-repeat;
-      opacity: 0.22;
+      inset: -6%;
+      background: url('assets/images/demo-villa-terrace-01.jpg') center 42%/cover no-repeat;
+      opacity: 0.34;
+      filter: saturate(1.06) contrast(1.05) brightness(0.86);
+      transform: scale(1.04);
+      animation: ph-drift 52s ease-in-out infinite alternate;
+      will-change: transform;
     }
+    @keyframes ph-drift {
+      from { transform: scale(1.04) translate3d(0, 0, 0); }
+      to   { transform: scale(1.12) translate3d(-1.6%, -1.2%, 0); }
+    }
+    /* warm light gathering behind the headline, the same amber the cards
+       and the pills use — opacity-animated, so it costs nothing */
+    .ph-glow {
+      position: absolute;
+      left: -12%; top: 8%;
+      width: 78%; height: 92%;
+      z-index: 1;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(46% 54% at 26% 46%, rgba(255,178,90,.16), transparent 68%),
+        radial-gradient(34% 40% at 8% 78%, rgba(127,217,232,.07), transparent 70%);
+      animation: ph-breathe 11s ease-in-out infinite;
+    }
+    @keyframes ph-breathe { 0%,100% { opacity: .62 } 50% { opacity: 1 } }
     .page-header::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(9,21,34,0.7) 0%, rgba(9,21,34,0.9) 100%);
+      background:
+        linear-gradient(180deg, rgba(6,9,14,.86) 0%, rgba(8,12,18,.5) 34%, rgba(8,11,16,.82) 100%),
+        radial-gradient(72% 60% at 78% 40%, transparent 30%, rgba(6,9,14,.6) 100%);
       z-index: 0;
     }
     .page-header::after {
@@ -63,10 +92,62 @@
       z-index: 1;
     }
     .page-header-inner { position: relative; z-index: 2; }
-    .page-header h1 { color: var(--white); font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 400; }
-    .page-header p { color: rgba(255,255,255,0.6); margin-top: 16px; font-size: 1.02rem; font-weight: 300; max-width: 540px; }
+    .page-header h1 {
+      color: var(--white); font-size: clamp(2.4rem, 5vw, 4.15rem);
+      font-weight: 400; line-height: 1.04; letter-spacing: -0.015em;
+    }
+    .page-header p { color: rgba(255,255,255,0.66); margin-top: 18px; font-size: 1.02rem; font-weight: 300; max-width: 560px; line-height: 1.72; }
     .page-header .gold-line { margin: 16px 0; }
     .nav-links .active-link { color: var(--gold); }
+
+    /* Portfolio at a glance. Counted from the JSON by js/listings.js. */
+    .ph-stats {
+      display: flex; flex-wrap: wrap; gap: 0;
+      margin: 34px 0 0; padding: 0; list-style: none;
+    }
+    .ph-stats li {
+      padding: 0 26px; position: relative;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .ph-stats li:first-child { padding-left: 0; }
+    .ph-stats li + li::before {
+      content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+      width: 1px; background: linear-gradient(180deg, transparent, rgba(198,167,110,.42), transparent);
+    }
+    .ph-stats b {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: clamp(1.5rem, 2.4vw, 2.05rem); font-weight: 400; line-height: 1;
+      color: var(--gold-light, #FFE0B0);
+    }
+    .ph-stats span {
+      font-size: .6rem; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(255,255,255,.44);
+    }
+
+    /* One load sequence for the header, so it assembles rather than
+       appearing all at once. Nothing here waits on the data. */
+    .rise { animation: rise-in .95s cubic-bezier(.22,.68,.16,1) both; animation-delay: var(--d, 0ms); }
+    @keyframes rise-in {
+      from { opacity: 0; transform: translate3d(0, 20px, 0); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* Three figures do not wrap gracefully — the third dropped to its own
+       line and took a divider with it. A three-column grid keeps them on
+       one row down to 320px. */
+    @media (max-width: 620px) {
+      .ph-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 28px; }
+      .ph-stats li { padding: 0 13px; }
+      .ph-stats li:first-child { padding-left: 0; }
+      .ph-stats b { font-size: 1.34rem; }
+      .ph-stats span { font-size: .53rem; letter-spacing: .15em; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page-header-bg, .ph-glow, .rise { animation: none; }
+      .page-header-bg { transform: scale(1.04); }
+      .rise { opacity: 1; transform: none; }
+    }
 
     /* The filter bar used to be styled here. It now lives entirely in
        css/filter-ui.css — the rules were left in place at first and the
@@ -77,17 +158,33 @@
     /* ---- LISTINGS SECTION ---- */
     .listings-section {
       background: #0B0B0B;
-      padding: 72px 0 110px;
+      padding: 64px 0 110px;
+      position: relative;
     }
+    /* the grid emerges out of the filter bar rather than starting on a flat
+       black edge — one gradient, no extra element in the flow */
+    .listings-section::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0; height: 220px;
+      background: linear-gradient(180deg, rgba(18,26,36,.85), rgba(11,11,11,0));
+      pointer-events: none;
+    }
+    .listings-section .container { position: relative; z-index: 1; }
     .listings-section .demo-disclaimer-wide {
-      background: #111111;
-      border-color: rgba(198,167,110,0.24);
-      color: #A0A0A0;
+      background: linear-gradient(180deg, rgba(20,27,37,.72), rgba(13,18,25,.55));
+      border: 1px solid rgba(198,167,110,0.2);
+      border-radius: 14px;
+      color: rgba(247,242,233,.56);
+      font-size: .78rem;
+      line-height: 1.7;
+      padding: 16px 22px;
+      margin-bottom: 34px;
     }
     .listings-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: clamp(22px, 2.3vw, 34px);
     }
 
     /* ---- PROPERTY CARD (extended for listings page) ---- */
@@ -136,14 +233,46 @@
        shared floating card in css/property-ui.css — see js/listings.js.
        Only .listing-error survives, since the empty and failure states
        still render it. */
+    /* An empty grid is the one moment the page has nothing to show, so it
+       has to carry itself — and offer the way back out rather than leaving
+       the reader to work out which pill did it. */
     .listing-error {
       grid-column: 1 / -1;
-      padding: 44px;
-      border: 1px solid rgba(198,167,110,0.28);
-      background: #111111;
+      padding: clamp(44px, 7vw, 76px) 32px;
+      border: 1px solid rgba(198,167,110,0.22);
+      border-radius: 18px;
+      background:
+        radial-gradient(60% 80% at 50% 0%, rgba(255,178,90,.07), transparent 70%),
+        linear-gradient(180deg, rgba(20,27,37,.8), rgba(13,18,25,.6));
       text-align: center;
-      color: #A0A0A0;
+      color: rgba(247,242,233,.62);
     }
+    .listing-error b {
+      display: block;
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+      color: #F7F2E9;
+      margin-bottom: 10px;
+    }
+    .listing-error span { display: block; max-width: 420px; margin: 0 auto; font-size: .9rem; line-height: 1.7; }
+    .listing-error button {
+      margin-top: 24px;
+      padding: 11px 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,178,90,.45);
+      background: transparent;
+      color: #FFB25A;
+      font-family: inherit;
+      font-size: .64rem;
+      font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+    }
+    .listing-error button:hover { background: #FFB25A; color: #0B0B0B; border-color: #FFB25A; }
+    .listing-error button:focus-visible { outline: 2px solid #FFB25A; outline-offset: 3px; }
 
     /* ---- FEATURED LARGE CARD ---- */
     .card-featured {
@@ -227,17 +356,17 @@
   <!-- After the inline block on purpose: .grid-props and .listings-grid
        are the same specificity, so source order decides, and the shared
        component has to win. Same file index.html loads. -->
-  <link rel="stylesheet" href="css/property-ui.css?v=2026-07-28b" />
+  <link rel="stylesheet" href="css/property-ui.css?v=2026-08-07b" />
 
   <!-- Last on purpose: several rules here restate ones from the inline
        block above at equal specificity, so source order decides. -->
-  <link rel="stylesheet" href="css/filter-ui.css?v=2026-07-29a" />
+  <link rel="stylesheet" href="css/filter-ui.css?v=2026-08-07b" />
   <!-- the landing page's brand bar, shared -->
 
-  <link rel="stylesheet" href="css/nav.css?v=2026-07-29c" />
+  <link rel="stylesheet" href="css/nav.css?v=2026-08-07b" />
 
   <!-- last: phone-only overrides -->
-  <link rel="stylesheet" href="css/mobile.css?v=2026-07-29e" />
+  <link rel="stylesheet" href="css/mobile.css?v=2026-08-07d" />
 </head>
 <body>
 
@@ -249,7 +378,8 @@
   <nav class="nav" aria-label="Primary">
     <a href="index.html">Home</a>
     <a href="listings.html" class="keep active-link" aria-current="page">Properties</a>
-    <a href="areas-abdoun.html">Areas</a>
+    <a href="services.html">Services</a>
+    <a href="areas.html">Areas</a>
     <a href="insights/best-areas-in-amman.html">Insights</a>
     <a href="team.html">Team</a>
     <a href="pages/list-property.html">Sell With Us</a>
@@ -263,11 +393,16 @@
 <!-- PAGE HEADER -->
 <div class="page-header">
   <div class="page-header-bg"></div>
+  <span class="ph-glow" aria-hidden="true"></span>
   <div class="container page-header-inner">
-    <p class="label">Available now</p>
-    <span class="gold-line"></span>
-    <h1>Every residence we hold.</h1>
-    <p>Filter by area, type or budget. Open any property to page through its photographs — most have a dozen. Availability and the final figure are confirmed with the owner before a viewing is arranged.</p>
+    <p class="label rise">Available now</p>
+    <span class="gold-line rise" style="--d:70ms"></span>
+    <h1 class="rise" style="--d:120ms">Every residence we hold.</h1>
+    <p class="rise" style="--d:200ms">Filter by area, type or budget. Open any property to page through its photographs — most have a dozen. Availability and the final figure are confirmed with the owner before a viewing is arranged.</p>
+    <!-- Counted from the data at runtime by js/listings.js, never typed in:
+         a hand-written figure here is a figure that goes stale the next
+         time the portfolio changes. -->
+    <ul class="ph-stats rise" id="ph-stats" style="--d:290ms" aria-live="polite"></ul>
   </div>
 </div>
 
@@ -298,6 +433,19 @@
              data. The hard-coded area list that used to sit here was
              Abdoun / Dabouq / Dair Ghbar / Um Uthaina / Abdali, and
              three of those five have never had a single listing. -->
+        <!-- Transaction. Single choice, because these are three views of
+             the book rather than three things to combine. A "Sale or Rent"
+             listing genuinely answers both questions, so it shows under
+             Rent and under Sale; "Rent & Sale" isolates just those. -->
+        <div class="fx-group">
+          <span class="fx-group-label">For</span>
+          <div class="fx-pills" id="fx-deal">
+            <button class="fx-pill" data-deal="rent"><span>Rent</span></button>
+            <button class="fx-pill" data-deal="sale"><span>Sale</span></button>
+            <button class="fx-pill" data-deal="both"><span>Rent &amp; Sale</span></button>
+          </div>
+        </div>
+
         <div id="fx-location"></div>
         <div id="fx-floor"></div>
 
@@ -404,14 +552,14 @@
   <span>Contact Advisor</span>
 </a>
 
-<script src="js/site.js?v=2026-07-29a"></script>
+<script src="js/site.js?v=2026-08-07b"></script>
 <!-- order matters: the card builder asks the viewer to open, and
      listings.js asks the builder to build -->
-<script src="js/property-viewer.js?v=2026-07-28b"></script>
-<script src="js/property-card.js?v=2026-07-28b"></script>
+<script src="js/property-viewer.js?v=2026-08-07b"></script>
+<script src="js/property-card.js?v=2026-08-07b"></script>
 <!-- filter-ui defines Lumina.multiSelect, which listings.js calls on load -->
 <script src="js/filter-ui.js?v=2026-07-29a"></script>
-<script src="js/listings.js?v=2026-07-29a"></script>
+<script src="js/listings.js?v=2026-08-07b"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -437,12 +585,12 @@
       "name": "Luxury Properties in Amman",
       "description": "Residences currently available through Lumina in Amman, Jordan.",
       "url": "https://lumina.qutaifan.com/listings.html",
-      "numberOfItems": 113,
+      "numberOfItems": 118,
       "itemListOrder": "https://schema.org/ItemListOrderDescending"
     }
   ]
 }
 </script>
-<script src="js/nav-menu.js?v=2026-07-29e" defer></script>
+<script src="js/nav-menu.js?v=2026-08-07b" defer></script>
 </body>
 </html>

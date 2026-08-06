@@ -61,10 +61,19 @@
   document.body.appendChild(sheet);
 
   /* ---- behaviour ---- */
+  /* Declared up here rather than beside the change listener because show()
+     tests it: css/mobile.css only styles the sheet inside this same query,
+     so opening it above the breakpoint would dump seven unstyled links at
+     the foot of the document with no way back. The toggle is display:none
+     there, but a click can still be dispatched — and was, by tab+Enter,
+     before the toggle was hidden at all. */
+  const mq = window.matchMedia('(max-width: 860px)');
+
   let open = false;
   let lastFocus = null;
 
   const show = () => {
+    if (!mq.matches) return;
     lastFocus = document.activeElement;
     open = true;
     sheet.hidden = false;
@@ -125,7 +134,6 @@
   /* Rotating a phone to landscape can cross the breakpoint with the
      sheet still open, leaving a full-screen overlay on a desktop-width
      layout where the button that closes it is hidden. */
-  const mq = window.matchMedia('(max-width: 860px)');
   const onChange = e => { if (!e.matches && open) hide(); };
   if (mq.addEventListener) mq.addEventListener('change', onChange);
   else if (mq.addListener) mq.addListener(onChange);

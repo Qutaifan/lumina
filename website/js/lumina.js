@@ -149,7 +149,15 @@
 
   const onScrollSpine = () => {
     const max = document.documentElement.scrollHeight - innerHeight;
-    fill.style.setProperty('--prog', (max > 0 ? clamp(scrollY / max, 0, 1) * 100 : 0) + '%');
+    const n = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+    /* Two properties for one number, deliberately. css/elevated.css scales
+       the rail with --prog-n rather than resizing it — a height re-resolved
+       every frame the page moves is the one thing this site's rules forbid.
+       index.html and invest.html still carry their own inline copies of the
+       spine reading --prog as a percentage, so it keeps being written until
+       they are converted too. */
+    fill.style.setProperty('--prog', (n * 100) + '%');
+    fill.style.setProperty('--prog-n', n.toFixed(4));
     const mid = scrollY + innerHeight * .42;
     let active = 0;
     secs.forEach((s, i) => { if (s.offsetTop <= mid) active = i; });
@@ -174,8 +182,20 @@
   };
 
   /* ── aperture bridge: clip-path reveal across the pinned scroll range ──
-     0% at the top and bottom of the pin, 0% (fully open) at the midpoint —
-     a triangle wave over progress, scaled by the section's own --ap-max. */
+     Shut at the top and bottom of the pin, fully open across the middle,
+     scaled by the section's own --ap-max.
+
+     A bare triangle wave (apMax * |2p - 1|) hit 0% at exactly one value of
+     p, so across three viewports of scrolling the film was genuinely open
+     for a single frame — a shutter that flickers rather than opens. The
+     0.22 deadband gives the wave a plateau: |2p - 1| below it reads as
+     fully open, which holds the frame clear for the middle ~22% of the
+     pin. Everything is still a pure function of p, so scrubbing back is
+     exact and nothing holds a timer.
+
+     --fi is the copy's own 0-1 envelope, ramping up as the shutter opens
+     and down as it closes, so the words and the frame are one moment
+     rather than two. index.html's .film-inner is what consumes it. */
   const aperture = $('#film');
   const apMax = aperture ? parseFloat(getComputedStyle(aperture).getPropertyValue('--ap-max')) || 42 : 42;
   const onScrollAperture = () => {
@@ -183,16 +203,83 @@
     const r = aperture.getBoundingClientRect();
     const total = r.height - innerHeight;
     const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
-    aperture.style.setProperty('--ap', (apMax * Math.abs(2 * p - 1)).toFixed(2) + '%');
+    const w = Math.abs(2 * p - 1);
+    aperture.style.setProperty('--ap', (apMax * clamp((w - .22) / .78, 0, 1)).toFixed(2) + '%');
+    aperture.style.setProperty('--fi',
+      Math.min(clamp((p - .28) / .14, 0, 1), clamp((.72 - p) / .14, 0, 1)).toFixed(3));
   };
+
+  /* ── the hero's call to action ──────────────────────────────
+     Held back until the reader scrolls once, then popped up from
+     below. An offer made after somebody has shown a flicker of
+     interest reads as an offer; the same offer made at t=0, before
+     they have looked at anything, reads as a banner — and it was
+     competing with the headline's own per-line rise for the same half
+     second.
+
+     `armed` is set HERE rather than in the markup, so with this file
+     blocked the button is simply visible at rest. The primary call to
+     action is the last thing on the page that should need JavaScript.
+
+     Runs once and then costs a boolean per frame. */
+  const cta = $('#heroCta');
+  if (cta) cta.classList.add('armed');
+  let ctaUp = false;
+  const onScrollCta = () => {
+    if (ctaUp || !cta) return;
+    /* TWO conditions, and it needs both.
+
+       They scrolled — about one wheel notch on a laptop and comfortably
+       less than a phone flick. Capped rather than a pure fraction of
+       the viewport, because the threshold means "they engaged", not
+       "they reached a position". */
+    if (scrollY < Math.min(110, innerHeight * 0.13)) return;
+    /* AND it is on screen. The hero runs taller than the fold on a
+       laptop — measured at 1440x900 the button sits 1178px down — so
+       the scroll threshold alone fired the pop below the fold and the
+       reader arrived to find it already landed. An entrance nobody
+       sees is not an entrance. */
+    if (cta.getBoundingClientRect().top > innerHeight - 24) return;
+    ctaUp = true;
+    cta.classList.add('up');
+  };
+
+  /* ── the showroom pill on a phone ───────────────────────────
+     On a phone the hero's glass panels stack down the page and the
+     fixed pill sits on top of them for the whole of that scroll — it
+     was landing on the quiz card's own control. It tucks away until
+     the reader is past the hero. On desktop the hero is a wide grid
+     and the pill sits in dead space, so this leaves it alone.
+
+     .tuck is added HERE and not in the markup: with the script blocked
+     the pill has to be visible, not permanently hidden off screen. */
+  const fabEl = $('.fab');
+  const heroEl = $('#hero');
+  const phone = matchMedia('(max-width: 860px)');
+  const onScrollFab = () => {
+    if (!fabEl || !heroEl) return;
+    if (!phone.matches) { fabEl.classList.remove('tuck'); return; }
+    fabEl.classList.toggle('tuck',
+      heroEl.getBoundingClientRect().bottom > innerHeight * 0.5);
+  };
+  /* crossing the breakpoint mid-session has to re-decide it */
+  if (fabEl && heroEl && phone.addEventListener) phone.addEventListener('change', onScrollFab);
 
   let ticking = false;
   addEventListener('scroll', () => {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(() => { onScrollBar(); onScrollSpine(); onScrollPlx(); onScrollAperture(); ticking = false; });
+    requestAnimationFrame(() => {
+      onScrollBar(); onScrollSpine(); onScrollPlx(); onScrollAperture();
+      onScrollCta(); onScrollFab();
+      ticking = false;
+    });
   }, { passive: true });
-  onScrollSpine(); onScrollPlx(); onScrollAperture();
+  onScrollSpine(); onScrollPlx(); onScrollAperture(); onScrollFab();
+  /* If the page is restored mid-scroll — a refresh, a back button, a
+     deep link — the hero is already gone and there is nothing to wait
+     for. */
+  onScrollCta();
 
   /* ── card tilt + tracking specular ────────────────────── */
   /* Exposed as a public hook: the collection cards are injected after

@@ -16,6 +16,17 @@
    Desktop is untouched: those sizes are correct for a cursor.
    ========================================================================== */
 
+/* js/nav-menu.js injects the button and the sheet on every viewport —
+   it has no width test, and adding one would leave a rotated phone
+   without a menu. Everything that styles them lives in the query below,
+   so above 860px the toggle rendered as a bare <button> with three empty
+   spans: a dozen pixels of UA padding sitting in .nav's gap, which read
+   as an unbalanced right-hand gutter, and a real tab stop that opened an
+   unstyled sheet. Both are hidden by default and the query re-enables
+   them; the display values inside win on source order. */
+.nav-toggle,
+.nav-sheet { display: none; }
+
 @media (max-width: 860px) {
 
   /* ---- THE BAR ----
@@ -23,10 +34,15 @@
      wordmark, the WhatsApp chip and the menu button. */
   .bar .nav a:not(.chip) { display: none; }
 
+  /* max() against the safe area rather than a flat gutter. In portrait
+     a notch sits above the viewport and env() is 0, so the clamp wins
+     and nothing changes; turn the phone sideways and the wordmark stops
+     disappearing under the camera housing. Every page now carries
+     viewport-fit=cover, which is what makes env() resolve at all. */
   .bar {
     gap: 12px;
-    padding-left: clamp(16px, 4vw, 26px);
-    padding-right: clamp(16px, 4vw, 26px);
+    padding-left: max(clamp(16px, 4vw, 26px), env(safe-area-inset-left));
+    padding-right: max(clamp(16px, 4vw, 26px), env(safe-area-inset-right));
   }
 
   .bar .mark-img { padding: 8px 0; }
@@ -89,7 +105,11 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 96px clamp(22px, 7vw, 40px) 40px;
+    padding:
+      max(96px, calc(env(safe-area-inset-top) + 84px))
+      max(clamp(22px, 7vw, 40px), env(safe-area-inset-right))
+      max(40px, calc(env(safe-area-inset-bottom) + 24px))
+      max(clamp(22px, 7vw, 40px), env(safe-area-inset-left));
     background: linear-gradient(180deg, rgba(5, 7, 11, .97), rgba(8, 11, 17, .99));
     opacity: 0;
     pointer-events: none;
@@ -187,6 +207,38 @@
     min-height: 44px;
   }
 
+  /* ...and the OTHER footer. The rule above covers the old cluster's
+     .footer-col; the elevated pages use .foot-nav, which was never in
+     it — measured at 23px on all six of them. Same floor, and the row
+     gap comes down because the links now carry their own height. */
+  .foot-nav { gap: 2px clamp(18px, 5vw, 26px); }
+  .foot-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .foot .fine a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* ---- TRACKED UPPERCASE ----
+     .mono is .62rem — 9.9px — set in uppercase with .22em of tracking.
+     That is a precise drafting annotation on a 27-inch display and a
+     smear on a phone held at arm's length, and the elevated pages use
+     it for every label they have: the room's reading panel, the areas
+     districts, the quiz, the invest stages. Measured on six pages.
+
+     The tracking comes down as the size goes up — .22em was chosen to
+     hold a 9.9px line together, and at 11.8px it just pushes the words
+     apart. No !important anywhere: this sheet loads last, so plain
+     selectors already win on source order. */
+  .mono { font-size: .74rem; letter-spacing: .16em; }
+  .kicker { font-size: .76rem; letter-spacing: .19em; }
+  .cmx-kick, .qz-step { font-size: .68rem; letter-spacing: .2em; }
+  /* more specific rules that would otherwise outrank the two above */
+  .prog-sub-step .mono { font-size: .68rem; }
+  .ar-item .mono, .meth-step .mono, .svc-card .mono { font-size: .74rem; }
+  .nav-sheet-foot { font-size: .78rem; }
+  .terms dt, .title-block dt { font-size: .68rem; letter-spacing: .16em; }
+
   /* ---- TYPE ----
      Nothing below 11px. Uppercase tracked labels are the worst
      offenders: at 9.6px with .2em of letter-spacing they are decoration
@@ -227,6 +279,15 @@
 @media (max-width: 400px) {
   .prop-float .card-cta { flex-direction: column; align-items: stretch; }
   .prop-float .card-act { justify-content: center; }
+}
+
+/* The price row is flex-wrap, so whether "View property" sits beside the
+   figure or under it depended on how many characters the figure happened
+   to have — a column of cards broke the line in different places. Below
+   520px it always breaks. */
+@media (max-width: 520px) {
+  .prop-float .price { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .prop-float .price .view-btn { align-self: stretch; justify-content: space-between; }
 }
 
 /* ---- 320px ----
