@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Services — Lumina Real Estate Advisory, Amman</title>
-<meta name="description" content="What Lumina does: investment introductions to new high-specification buildings, property management for owners who are not in the country, and written property evaluations. Amman, Jordan.">
+<meta name="description" content="What Lumina does: investment introductions to new high-specification buildings, property management for owners abroad, written property evaluations, and Lumina Studio — websites, social blueprints and branding for other real-estate firms. Amman, Jordan.">
 <meta name="theme-color" content="#05070B">
 
 <meta property="og:title" content="Lumina — services">
-<meta property="og:description" content="Investment, property management and property evaluation. Amman, Jordan.">
+<meta property="og:description" content="Investment, property management, property evaluation, and Lumina Studio. Amman, Jordan.">
 <meta property="og:type" content="website">
 
 <link rel="icon" type="image/png" href="assets/lumina-logo.png" />
@@ -312,7 +312,7 @@
 .hub-in p{margin:0 auto; max-width:26ch; font-size:.84rem; color:var(--c-52); line-height:1.5}
 
 /* ── the written list ─────────────────────────────────────────
-   The same three services as prose, under the field. It is the
+   The same four services as prose, under the field. It is the
    accessible and indexable copy of what the bubbles say, and it is
    where someone who does not want to play with a toy goes. */
 .svc-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -343,7 +343,7 @@
    menu, and between 901 and 1199 the hub that carries its content is
    hidden anyway. So the grid is the real layout on a phone, on a
    tablet and in a narrow desktop window, not a fallback: three
-   properly sized bubbles above the same three services in prose. */
+   properly sized bubbles above the same four services in prose. */
 @media (max-width:900px){
   .svc{min-height:0; grid-template-rows:auto auto}
   .svc-field{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
@@ -401,7 +401,7 @@
   <span class="rail" aria-hidden="true"></span>
   <span class="fill" id="fill" aria-hidden="true"></span>
   <button type="button" data-to="field"><span class="tip">Services</span></button>
-  <button type="button" data-to="detail"><span class="tip">The three</span></button>
+  <button type="button" data-to="detail"><span class="tip">All four</span></button>
   <button type="button" data-to="ask"><span class="tip">Get started</span></button>
 </nav>
 
@@ -414,7 +414,7 @@
   <div class="svc-head">
     <p class="kicker rv">Services</p>
     <h1 class="display rv" style="--rvd:60ms">Buy well. Hold it properly. Know what it is worth.</h1>
-    <p class="lede rv" style="--rvd:140ms">Three services, one firm, no referral chain. Most people arrive for one of them and pick up the others later — you do not have to take them together.</p>
+    <p class="lede rv" style="--rvd:140ms">Four services, one firm, no referral chain. Three are about a property; the fourth builds the website, the social plan and the brand for other firms in this industry. Most people arrive for one and pick up another later.</p>
   </div>
 
   <div class="svc-field" id="svcField">
@@ -462,7 +462,7 @@
        aria-label="Invest — new builds, before they are listed. For buyers: one contractor, one engineer, one standard, and first sight of what they finish."
        data-tag="Buying" data-name="New builds, before they are listed"
        data-note="For buyers. One contractor, one engineer, one standard — and first sight of what they finish."
-       data-a="90" data-r=".84" data-size="1.16"
+       data-a="90" data-r=".80" data-size="1.16"
        style="--tint:255,178,90;
               --br:63% 37% 44% 56% / 38% 58% 42% 62%;
               --br2:41% 59% 66% 34% / 61% 39% 61% 39%;
@@ -489,7 +489,7 @@
        aria-label="Property management — run properly while you are away. For owners: tenants, rent, dues and repairs handled here, one contact and one report a month."
        data-tag="Owning" data-name="Run properly while you are away"
        data-note="For owners. Tenants, rent, dues and repairs handled here — one contact, one report a month."
-       data-a="318" data-r=".97" data-size="1.06"
+       data-a="2" data-r=".94" data-size="1.04"
        style="--tint:127,217,232;
               --br:38% 62% 65% 35% / 57% 33% 67% 43%;
               --br2:67% 33% 38% 62% / 42% 64% 36% 58%;
@@ -516,7 +516,7 @@
        aria-label="Property evaluation — what it is worth, in writing. For anyone who needs a defensible number: inspected in person, priced off real sales, issued as a document."
        data-tag="Pricing" data-name="What it is worth, in writing"
        data-note="For anyone who needs a defensible number. Inspected in person, priced off real sales, issued as a document."
-       data-a="216" data-r=".8" data-size=".95"
+       data-a="182" data-r=".94" data-size=".98"
        style="--tint:176,208,230;
               --br:56% 44% 33% 67% / 64% 41% 59% 36%;
               --br2:33% 67% 60% 40% / 37% 63% 37% 63%;
@@ -539,21 +539,64 @@
         </span>
       </span>
     </a>
+
+    <!-- The fourth, and the odd one out: the only service that is not
+         about a property.
+
+         Adding it turned three hand-placed angles into four, and the
+         first attempt (a=150) put it on top of evaluation — both ended
+         up on the left because their x is cos(a) and 150 and 216 are
+         only 0.1 apart there. The four now sit on a diamond: 90 front,
+         2 right, 182 left, 270 back. Rest-frame separation is measured
+         at 1280, 1440 and 1600 — if you move one, measure all four,
+         because two bubbles can be 60 degrees apart and still land in
+         the same place.
+
+         Its --spinA/--spinB again share no factor with the other three,
+         or the four outlines fall back into formation every few
+         minutes. -->
+    <a class="bub" href="lumina-studio.html"
+       aria-label="Lumina Studio — websites, social blueprints and branding for other real-estate firms. Built by a brokerage, for brokerages."
+       data-tag="Building" data-name="Websites, social and branding"
+       data-note="For other property firms. Built by a brokerage that knows what a listing page has to do."
+       data-a="270" data-r=".86" data-size="1.02"
+       style="--tint:255,224,176;
+              --br:47% 53% 61% 39% / 35% 62% 38% 65%;
+              --br2:59% 41% 36% 64% / 63% 34% 66% 37%;
+              --spinA:83s; --spinB:67s">
+      <span class="bub-halo" aria-hidden="true"></span>
+      <span class="bub-shell" aria-hidden="true"></span>
+      <span class="bub-ring" aria-hidden="true"></span>
+      <span class="bub-sheen" aria-hidden="true"></span>
+      <span class="bub-body">
+        <span class="bub-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.6" y="4.2" width="18.8" height="13" rx="1.6"/>
+            <path d="M2.6 8.1h18.8"/><path d="M5.4 6.2h.01M7.6 6.2h.01"/>
+            <path d="M8.4 20.6h7.2"/><path d="M12 17.2v3.4"/>
+          </svg>
+        </span>
+        <span class="bub-name">Lumina<br>Studio</span>
+        <span class="bub-go">Open
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.8 11.2 11.2 4.8M6.1 4.8h5.1v5.1"/></svg>
+        </span>
+      </span>
+    </a>
   </div>
 </section>
 
 <div class="rule"></div>
 
 <!-- ═══ IN WRITING ══════════════════════════════════════
-     The same three services as prose. This is the indexable,
+     The same four services as prose. This is the indexable,
      screen-readable, no-nonsense version of the field above, and it
      is not optional decoration — a services page that only exists as
      a toy is not a services page. -->
 <section class="sec" id="detail">
   <div class="sec-head rv">
-    <p class="kicker">The three services</p>
+    <p class="kicker">All four services</p>
     <h2 class="display">What each one is, and who it is for.</h2>
-    <p class="lede">The same three as plain text, with a link straight through to each. If one of the lines below describes you, that is your page.</p>
+    <p class="lede">The same four as plain text, with a link straight through to each. If one of the lines below describes you, that is your page.</p>
   </div>
 
   <div class="svc-list">
@@ -637,11 +680,39 @@
         </div>
       </div>
     </div>
+
+    <div class="float rv" style="--rvd:330ms">
+      <div class="depth" style="--d:26px">
+        <div class="lev" style="--dur:11.7s;--amp:8px;--rot:.24deg;--delay:-3.1s">
+          <article class="card-g svc-card tilt" style="--tint:255,224,176">
+            <span class="spec" aria-hidden="true"></span>
+            <span class="svc-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2.6" y="4.2" width="18.8" height="13" rx="1.6"/>
+                <path d="M2.6 8.1h18.8"/><path d="M8.4 20.6h7.2"/><path d="M12 17.2v3.4"/>
+              </svg>
+            </span>
+            <span class="mono">For other property firms</span>
+            <h3>Lumina Studio</h3>
+            <p>The one service that is not about a property. We build the website, the social-media blueprint and the brand identity for other agencies and developers — as a brokerage that knows what a listing page has to do at eleven at night.</p>
+            <ul>
+              <li>Built from nothing, not from a template or a page builder</li>
+              <li>Listings driven by the spreadsheet your office already keeps</li>
+              <li>Files, domain and accounts in your name from the start</li>
+            </ul>
+            <a class="btn-line go" href="lumina-studio.html">
+              See the portfolio
+              <i aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 11.2 11.2 4.8M6.1 4.8h5.1v5.1"/></svg></i>
+            </a>
+          </article>
+        </div>
+      </div>
+    </div>
   </div>
 
   <p class="note rv" style="--rvd:120ms">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="8" cy="8" r="6.4"/><path d="M8 7.2v4M8 4.9v.9"/></svg>
-    <span><strong>On fees:</strong> all three are quoted per instruction and confirmed in writing before any work starts. There is no rate card on this site, for the same reason there are no prices on the listings — a figure that has to be qualified in the next sentence is not information.</span>
+    <span><strong>On fees:</strong> all four are quoted per instruction and confirmed in writing before any work starts. There is no rate card on this site, for the same reason there are no prices on the listings — a figure that has to be qualified in the next sentence is not information.</span>
   </p>
 </section>
 
@@ -652,12 +723,12 @@
   <div class="sec-head rv">
     <p class="kicker">Get started</p>
     <h2 class="display">Not sure which one you need?</h2>
-    <p class="lede">Say what you have and what you are trying to do with it. We will tell you which of the three it is — and if the answer is that you do not need us, we will say that too.</p>
+    <p class="lede">Say what you have and what you are trying to do with it. We will tell you which of the four it is — and if the answer is that you do not need us, we will say that too.</p>
   </div>
 
   <div class="reg">
     <div class="reg-side rv">
-      <p>Every enquiry goes to a person, not a queue. The three overlap more often than they look like they do: an evaluation frequently turns into a management instruction, and a management client is usually the first to hear about a new building.</p>
+      <p>Every enquiry goes to a person, not a queue. The property three overlap more often than they look like they do: an evaluation frequently turns into a management instruction, and a management client is usually the first to hear about a new building.</p>
       <ul class="ticks">
         <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8.4l3.2 3.2L13 4.8"/></svg><span>No obligation, and no marketing list.</span></li>
         <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8.4l3.2 3.2L13 4.8"/></svg><span>Fees quoted in writing before anything begins.</span></li>
@@ -680,6 +751,7 @@
           <option>Investment — new buildings</option>
           <option>Property management</option>
           <option>Property evaluation</option>
+          <option>Lumina Studio — website, social or branding</option>
           <option>More than one of these</option>
           <option>Not sure yet</option>
         </select>
@@ -711,7 +783,7 @@
     </div>
     <nav class="foot-nav" aria-label="Footer">
       <a href="index.html">Home</a><a href="listings.html">Properties</a>
-      <a href="services.html">Services</a><a href="invest.html">Invest</a><a href="room.html">The room</a>
+      <a href="services.html">Services</a><a href="lumina-studio.html">Studio</a><a href="invest.html">Invest</a><a href="room.html">The room</a>
       <a href="property-management.html">Management</a><a href="property-evaluation.html">Evaluation</a>
       <a href="team.html">Team</a><a href="index.html#contact">Contact</a>
     </nav>

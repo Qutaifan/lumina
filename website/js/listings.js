@@ -200,6 +200,28 @@
      ?location=abdoun and so on. Nothing read those parameters, so all
      of them landed on the unfiltered page — the links looked like
      filters and behaved like a plain link to the portfolio. */
+  /* ── arriving on a shared property ────────────────────────────
+     The share button in the gallery hands out
+     listings.html?property=<id>, so whoever opens it lands in the SAME
+     viewer the sender was looking at rather than on a different page.
+     This is the receiving half of that, and the two move together —
+     see js/property-viewer.js.
+
+     It runs after applyFilters so the grid behind the gallery is
+     already painted: closing the viewer leaves the reader in the
+     portfolio rather than on a blank page. If the id is no longer in
+     the book the page is simply the portfolio, which is the right
+     failure — a property that has gone is not an error state. */
+  const openSharedProperty = listings => {
+    const id = (new URLSearchParams(window.location.search).get('property') || '').trim();
+    if (!id) return;
+    const match = listings.find(l => String(l.id) === id);
+    if (!match || !window.Lumina || typeof window.Lumina.openViewer !== 'function') return;
+    /* One frame, so the grid has laid out before the viewer's own
+       focus() runs against it. */
+    requestAnimationFrame(() => window.Lumina.openViewer(match));
+  };
+
   const applyUrlFilters = listings => {
     const q = new URLSearchParams(window.location.search);
 
@@ -473,6 +495,7 @@
            to be selected. */
         applyUrlFilters(data);
         applyFilters();
+        openSharedProperty(data);
       })
       .catch(err => showFallback(err.message));
   } else {

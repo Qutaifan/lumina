@@ -60,6 +60,14 @@
             <div class="pv-links">
               <a class="pv-more" href="#">Full particulars <span aria-hidden="true">&rarr;</span></a>
               <a class="pv-more pv-ask" href="#" target="_blank" rel="noopener noreferrer" hidden>Ask about this <span aria-hidden="true">&rarr;</span></a>
+              <button class="pv-more pv-share" type="button"
+                      aria-label="Share this property" title="Share this property">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21.5 2.5 10.8 13.2"/>
+                  <path d="M21.5 2.5 14.8 21.5 10.8 13.2 2.5 9.2Z"/>
+                </svg>
+              </button>
             </div>
           </div>
           <div class="pv-strip"><div class="pv-track"></div></div>
@@ -80,6 +88,7 @@
       price: root.querySelector('.pv-info b'),
       more:  root.querySelector('.pv-more'),
       ask:   root.querySelector('.pv-ask'),
+      share: root.querySelector('.pv-share'),
       strip: root.querySelector('.pv-strip'),
       track: root.querySelector('.pv-track'),
       count: root.querySelector('.pv-count'),
@@ -176,6 +185,89 @@
     setTimeout(() => { if (!open) root.hidden = true; }, reduce ? 0 : 460);
   }
 
+  /* ── sharing the property you are looking at ────────────────
+     The link points at listings.html?property=<id>, NOT at
+     property-details.html. That is the whole point: whoever opens it
+     should land in this same gallery, not on a different page — so
+     the thing they were sent is the thing they see.
+
+     listings.html is the target because it is the only page that
+     carries the full book AND this viewer. The home grid holds eight
+     properties and the area pages hold one district each, so a link
+     built from either would break for anything outside them.
+
+     One button, two behaviours, chosen by what the browser has:
+       - navigator.share  → the OS sheet, which on a phone is WhatsApp,
+         Messages and AirDrop in one tap and carries a Copy option of
+         its own.
+       - clipboard        → desktop. Copies and says so, because a copy
+         that reports nothing reads as a copy that failed.
+     Neither: select the URL in a temporary input so it can still be
+     copied by hand. */
+  let shareReset = null;
+  let shareToast = null;
+
+  const shareSay = word => {
+    if (!shareToast) {
+      shareToast = document.createElement('div');
+      shareToast.className = 'pv-toast';
+      shareToast.setAttribute('role', 'status');
+      document.body.appendChild(shareToast);
+    }
+    shareToast.textContent = word;
+    void shareToast.offsetWidth;   /* real start value for the fade */
+    shareToast.dataset.on = '1';
+    if (els.share) els.share.dataset.done = '1';
+    clearTimeout(shareReset);
+    shareReset = setTimeout(() => {
+      shareToast.removeAttribute('data-on');
+      if (els.share) els.share.removeAttribute('data-done');
+    }, 2000);
+  };
+
+  const shareFor = listing => {
+    if (!els.share) return;
+    const url = new URL(
+      'listings.html?property=' + encodeURIComponent(listing.id),
+      location.href
+    ).href;
+    const title = String(listing.title || 'Property').trim();
+    const where = String(listing.location || listing.location_area || 'Amman').trim();
+
+    /* Replace rather than add: openViewer runs again for every
+       property, and stacking listeners would fire the old property's
+       share alongside the new one. */
+    els.share.onclick = () => {
+      if (navigator.share) {
+        navigator.share({
+          title: title + ' — Lumina',
+          text: [title, where].filter(Boolean).join(' · '),
+          url: url,
+        }).catch(() => {});          /* cancelling is not an error */
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(
+          () => shareSay('Link copied'), () => shareFallback(url));
+      } else {
+        shareFallback(url);
+      }
+    };
+  };
+
+  const shareFallback = url => {
+    const box = document.createElement('input');
+    box.value = url;
+    box.setAttribute('readonly', '');
+    box.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+      'z-index:200;width:min(420px,86vw);padding:12px;font:inherit;';
+    document.body.appendChild(box);
+    box.select();
+    try { document.execCommand('copy'); shareSay('Link copied'); }
+    catch (e) { shareSay('Copy the link'); }
+    setTimeout(() => box.remove(), 2400);
+  };
+
   const openViewer = listing => {
     if (!listing) return;
     if (!root) build();
@@ -211,6 +303,8 @@
     const ask = listing.__askUrl;
     els.ask.hidden = !ask;
     if (ask) els.ask.href = ask;
+
+    shareFor(listing);
 
     /* Stage layers */
     els.stage.replaceChildren(...shots.map((src, i) => {

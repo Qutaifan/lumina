@@ -324,7 +324,13 @@
 .pv-foot{
   position:absolute; left:0; right:0; bottom:0; z-index:7;
   padding:clamp(14px,2.2vw,26px) clamp(18px,3vw,40px);
-  display:grid; grid-template-columns:1fr auto 1fr; align-items:end; gap:clamp(12px,2vw,24px);
+  /* `1fr auto 1fr` gave the photo counter a 310px column to hold "1 / 9"
+     in, and took it from the links — which left 310px for a row that
+     needs 320, so the share mark wrapped onto its own line at 1440 and
+     "Ask about this" wrapped as well at 1024. The counter is content-
+     sized now and the links keep the slack. Measured both. */
+  display:grid; grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:end; gap:clamp(12px,2vw,24px);
 }
 .pv-info{display:flex; flex-direction:column; gap:9px; align-items:flex-start}
 .pv-info b{font-family:var(--lum-display); font-weight:400; font-size:clamp(1.05rem,1.8vw,1.34rem);
@@ -337,6 +343,43 @@
   transition:color .4s var(--lum-ease),border-color .4s var(--lum-ease);
 }
 .pv-more:hover{color:var(--lum-gold-lt); border-color:var(--lum-gold-lt)}
+/* Share sits beside "Ask about this" and takes the same colour from
+   .pv-more — it is the same class, so the two can never drift apart.
+   A <button> in a row of <a>s needs the UA chrome stripped, and the
+   underline goes because the mark has no baseline for one to sit on. */
+.pv-share{
+  padding:0 0 3px; border:0; border-bottom:1px solid transparent;
+  background:none; cursor:pointer; line-height:0;
+}
+.pv-share svg{
+  width:17px; height:17px; display:block;
+  /* the plane leans into its own direction of travel */
+  transition:transform .32s var(--lum-ease);
+}
+.pv-share:hover svg{transform:translate(2px,-2px)}
+.pv-share:focus-visible{outline:2px solid var(--lum-gold-lt); outline-offset:3px; border-radius:3px}
+/* sent: it flies out and the brighter gold holds for the two seconds
+   the toast is up */
+.pv-share[data-done]{color:var(--lum-gold-lt)}
+.pv-share[data-done] svg{transform:translate(5px,-5px) scale(.9)}
+
+/* the confirmation. z-index above the viewer, which is 120. */
+.pv-toast{
+  position:fixed; left:50%; bottom:clamp(88px,14vh,132px); z-index:130;
+  padding:10px 18px; border-radius:999px;
+  border:1px solid rgba(255,178,90,.5); background:rgba(12,16,24,.94);
+  color:var(--lum-gold-lt);
+  font-size:.66rem; font-weight:600; letter-spacing:.15em; text-transform:uppercase;
+  white-space:nowrap; pointer-events:none;
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  opacity:0; transform:translate(-50%,10px);
+  transition:opacity .3s var(--lum-ease),transform .36s var(--lum-ease);
+}
+.pv-toast[data-on]{opacity:1; transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){
+  .pv-share svg,.pv-toast{transition-duration:.01ms}
+  .pv-share:hover svg,.pv-share[data-done] svg{transform:none}
+}
 .pv-count{justify-self:end; align-self:end; font-size:.66rem; letter-spacing:.18em;
   color:var(--lum-c-52); font-variant-numeric:tabular-nums}
 

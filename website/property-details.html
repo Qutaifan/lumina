@@ -331,21 +331,94 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
-    .pd-cta a {
+    .pd-cta a,
+    .pd-cta button {
       flex: 1;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
       min-height: 48px;
       border-radius: 999px;
+      font-family: inherit;
       font-size: 0.78rem;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       text-decoration: none;
-      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease,
+                  color 0.2s ease;
     }
-    .pd-cta a:active { transform: scale(0.98); }
+    .pd-cta a:active,
+    .pd-cta button:active { transform: scale(0.98); }
+    /* Share is the mark and nothing else — a circle between two pills,
+       so it reads as a distinct kind of action rather than a third
+       equal choice on a bar whose job is the enquiry.
+
+       `.pd-cta button` above is 0-1-1 and a bare `.pd-share` is 0-1-0,
+       so it would lose and the button took an equal third — 482px at
+       1440, measured. Matching the element keeps the two at the same
+       weight and source order decides. */
+    .pd-cta button.pd-share {
+      flex: 0 0 auto;
+      width: 48px;
+      padding: 0;
+      border-radius: 50%;
+      color: var(--pd-cream);
+    }
+    .pd-share svg {
+      width: 19px; height: 19px; flex: none;
+      /* the plane leans into its own direction of travel, and lifts a
+         little on the way out */
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .pd-share:hover { border-color: var(--pd-champagne); color: var(--pd-champagne); }
+    .pd-share:hover svg { transform: translate(2px, -2px); }
+    .pd-share:focus-visible {
+      outline: 2px solid var(--pd-champagne);
+      outline-offset: 3px;
+    }
+    /* sent: the plane flies out of the circle and the gold stays for
+       the two seconds the toast is up */
+    .pd-share[data-done] {
+      border-color: var(--pd-champagne);
+      color: var(--pd-champagne);
+    }
+    .pd-share[data-done] svg { transform: translate(4px, -4px) scale(0.92); }
+
+    /* the confirmation, above the bar so it clears it on a phone */
+    .pd-toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      z-index: 60;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(201,168,124,0.5);
+      background: rgba(16,16,19,0.94);
+      color: var(--pd-champagne);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      pointer-events: none;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      opacity: 0;
+      transform: translate(-50%, 10px);
+      transition: opacity 0.3s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .pd-toast[data-on] { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pd-share svg,
+      .pd-toast { transition-duration: 0.01ms; }
+      .pd-share:hover svg,
+      .pd-share[data-done] svg { transform: none; }
+      .pd-toast[data-on] { transform: translate(-50%, 0); }
+    }
     .pd-cta-primary {
       background: linear-gradient(100deg, #E8A54B, #C9A87C);
       color: #14100A;
@@ -469,7 +542,7 @@
   </div>
 </footer>
 
-<script src="js/property-details.js?v=2026-08-06a"></script>
+<script src="js/property-details.js?v=2026-08-07g"></script>
 <script src="js/nav-menu.js?v=2026-08-07b" defer></script>
 </body>
 </html>

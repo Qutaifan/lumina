@@ -719,15 +719,85 @@ there and the glass had nothing to blur — the hero headline read straight thro
 sheets on a phone. The top highlight and border are what make it read as glass; the blur was
 only ever making it legible.
 
+### Sharing a property from the gallery — the main route
+
+`.pv-share` sits in the viewer footer beside **Ask about this**, as a paper-plane outline. It
+is the same `.pv-more` class as the links next to it, so the two take their colour from one
+rule and can never drift apart — do not give it its own colour.
+
+**The link it hands out is `listings.html?property=<id>`, deliberately NOT
+`property-details.html?id=<id>`.** Whoever opens it lands in the same gallery the sender was
+looking at, so the thing they were sent is the thing they see. `listings.html` is the target
+because it is the only page carrying the full book *and* the viewer — the home grid holds
+eight properties and each area page holds one district, so a link built from either would
+break for anything outside them. Sharing from the home page or an area page still produces a
+portfolio link, which is the point.
+
+The receiving half is `openSharedProperty()` in `js/listings.js`. **The two move together.**
+It runs *after* `applyFilters()` so the grid is painted behind the gallery — closing the
+viewer leaves the reader in the portfolio rather than on a blank page — and it opens on the
+next frame so the viewer's own `focus()` lands on something rendered. An id that is no longer
+in the book leaves the page as the portfolio: a property that has gone is not an error state.
+
+`shareFor()` assigns `els.share.onclick` rather than `addEventListener`, because `openViewer`
+runs again for every property and stacking listeners would fire the previous property's share
+alongside the current one.
+
+`.pv-foot` is `minmax(0,1fr) auto auto`. It used to be `1fr auto 1fr`, which gave the photo
+counter a 310px column to hold "1 / 9" in and took it from the links — leaving 310px for a
+row that needs 320, so the share mark wrapped onto its own line at 1440 and *Ask about this*
+wrapped as well at 1024. Both measured.
+
+Note `team.html` reuses `.prop-float` for its people. Those cards do not open the viewer and
+correctly have no share button.
+
+### Sharing from the particulars page
+
+**Every property has always had its own address:** `property-details.html?id=lumina-070`.
+That is how the collection cards navigate, `js/property-details.js` reads `?id` from the
+query string, and an unknown id renders a real "Property not found" panel rather than a blank
+page. Nothing had to be built for the link itself.
+
+What was missing was a way to *get* the link without going to the URL bar, which nobody on a
+phone is going to do. The **Share button** in the sticky CTA bar (`#pdShare`, between Back
+and WhatsApp) is a paper-plane mark in a circle and carries **no label** — a circle between
+two pills reads as a different kind of action rather than a third equal choice on a bar whose
+job is the enquiry. It therefore needs `aria-label` and `title`, and the confirmation cannot
+live inside it: `say()` raises a `.pd-toast` above the bar instead. It splits by capability,
+not by width:
+
+- `navigator.share` → the OS sheet. On a phone that is WhatsApp, Messages and AirDrop in one
+  tap, which is how these actually get passed around.
+- `navigator.clipboard` → desktop. Copies and says **Link copied** for two seconds; a copy
+  that reports nothing reads as a copy that failed.
+- Neither (old Safari, insecure origin) → a temporary input with the URL selected, so the
+  reader can copy by hand rather than being told nothing happened.
+
+The share button is `flex: 0 1 auto` and must be selected as **`.pd-cta button.pd-share`** —
+`.pd-cta button` is 0-1-1 and a bare `.pd-share` is 0-1-0, so it loses and the button takes
+an equal third of the bar (482px at 1440, measured).
+
+**Rich link previews do NOT work, and cannot without a change of approach.** WhatsApp,
+iMessage and Slack read Open Graph tags out of the *static* HTML; the property is fetched
+client-side from `data/lumina-demo-leads.json` and a crawler never runs that. So a pasted
+link shows "Property — Lumina" with no photograph. `property-details.html` also carries
+`noindex` — direct links work, but Google will not list them. Fixing the preview means one
+real HTML file per property with the tags baked in, which is a generated-artifact decision
+that has not been taken. **Do not fake it by writing OG tags at runtime — no crawler will
+see them.**
+
 ### `areas.html` — the districts, and the third scroll mechanism
 
 The destination of the **Areas** link in every bar (it used to go straight to
 `areas-abdoun.html`, which named one district and hid eight). Files: `areas.html`,
 `js/areas-index.js`, no new CSS file — it uses `css/elevated.css` plus its own block.
 
-**It is deliberately NOT a third pinned scrub.** `invest.html` and `room.html` both pin a
-section and scrub a 0…1 progress through it; a third would make the site feel like it has one
-idea. Here the plan is `position:sticky`, the districts scroll past it, and an
+**It is deliberately NOT another pinned scrub.** `invest.html`, `room.html` and
+`lumina-studio.html` all pin a section and scrub a 0…1 progress through it, and each earns it
+by having a different *subject* — a building going up, a room furnishing itself, a website
+assembling out of real DOM. `areas.html` has no such subject: it is nine districts and a map,
+and pinning it would have been the mechanism repeating itself with nothing new to say. That is
+the test for a fifth one. Here the plan is `position:sticky`, the districts scroll past it, and an
 `IntersectionObserver` with a `-34%` rootMargin hands the plan whichever district is in the
 middle third of the viewport. **There is no scroll listener on this page at all.** The plan
 then pans and scales to the centroid of that district's node(s) — one transform, read off the
@@ -814,6 +884,99 @@ note under `#offer`, and the line the page exists to earn: *the room is a drawin
 properties are real, we do not sell the sofa — we find the room.* Lumina does not supply,
 sell or specify furniture. If a rewrite ever softens that into "Lumina furnishes homes" it is
 a regression, because it is not true and it is not the business.
+
+### `lumina-studio.html` — the fourth service, and the only B2B one
+
+Websites, social-media blueprints and brand identities for **other real-estate firms**.
+Everything else on this site sells a property; this sells a capability, so it is the one
+service page whose reader is a competitor's marketing lead rather than a buyer.
+
+**It argues from this website and from nothing else.** There are no client names, no project
+counts, no "50+ sites delivered", no prices and no testimonials — a studio page is exactly
+where invented credentials get believed. The proof strip is four tiles linking to real pages
+of this build (`room.html`, `invest.html`, `listings.html`, `areas.html`), so the claim is
+checkable in one click while the reader is inside the sample. **If real named client work
+ever arrives it REPLACES that strip — it does not get added beside a number.**
+
+**The conflict is stated on the page, twice.** Lumina is a brokerage offering to build for
+firms that also sell property. That is at the top of the hero and again in the `#terms`
+ledger ("Competing firms — said out loud"), with the undertaking that studio-side information
+stays away from the brokerage side. Do not let a rewrite quietly drop it: a reader who finds
+it out later has been handled, and a reader who is told up front has been respected.
+
+**Services page counts.** Adding it made three services four — the bubble field, the written
+list, the lede, the spine tips, the fees note and the enquiry dropdown all say four now.
+Search `services.html` for "three" before adding a fifth.
+
+**The bubble angles are a diamond and they are measured, not reasoned.** 90 front, 2 right,
+182 left, 270 back. The first attempt put Studio at 150, which collided with Evaluation at
+216 — their x is `cos(a)`, and those two angles differ by only 0.1 there despite being 66
+degrees apart. Rest-frame separation is verified at 1280, 1440 and 1600. **Move one and
+re-measure all four.** Bubbles passing each other mid-orbit is intended, not a fault: the
+z-index is depth-ordered so they cross in front of and behind one another.
+
+**Studio is footer-only in navigation.** The bar keeps its six links on every page — see the
+`js/nav-menu.js` rule above — so Studio is reached from `services.html`, from the footers, and
+from the bubble field. A regex that adds it after `<a href="services.html">Services</a>` will
+hit the header bar too; scope it to `<nav class="foot-nav">`.
+
+### `#build` on the studio page — the fourth scroll mechanism, and the desk that collides
+
+The page **opens** on it, the same way `invest.html` opens on its empty plot: a 420vh pin in
+which a brand is struck, a website is wireframed, skinned, filled and shipped, and three posts
+fan out of the phone — then it is handed over. Files: `css/studio.css`, `js/studio.js`, the
+`.st` section of `lumina-studio.html`. It is the argument of the page performed instead of
+described, which is the only reason a studio page is allowed a four-viewport pin.
+
+Same engine as `invest.js` and `room.js` — one pinned section, one `0…1` progress, every value
+a pure function of it, no timers, no integrated springs, so scrubbing back un-builds it exactly.
+The phase table at the top of `css/studio.css` is the score; `ACTS` in `js/studio.js` is its
+table of contents. Two rules carried straight over and worth restating because they are the two
+that have bitten every set-piece here: **`osc()` is 1 at t=0** so it only ever belongs after a
+landing, and **`.st-pin` needs an explicit `grid-template-rows:minmax(0,1fr)`**, not
+`place-items:center`.
+
+**What is genuinely different: it drives DOM, not a drawing.** Both other set-pieces are
+line-work — SVG for the room, divs styled as slabs for the building. This one is a real
+browser frame full of real elements, because a studio that builds websites out of elements
+should build one out of elements while you watch. Which brings the rule that shapes the whole
+stylesheet: **never animate colour from the scroll handler.** Each of the six blocks is three
+stacked static layers — `.st-wire` (hatched wireframe), `.st-skin` (brand colour), `.st-content`
+(type and prices) — and the build crossfades their opacities. Same reason room.css stacks four
+skies. And there is **no `filter` on anything inside the camera**, for room.css's reason: a
+filter inside a scaling ancestor re-rasters its region every frame.
+
+**The real work was the collisions, and instrumentation could not see any of them.** The
+drivers scrubbed perfectly — six blocks, four acts, correct sequencing, zero overflow at seven
+widths, clean under reduced motion — while five pairs of boxes were sitting on top of each
+other in the screenshots. Every one is now a declared clearance token on `.st-pin` rather than
+a number restated in five rules:
+
+| Was | Because |
+|---|---|
+| **Skip button printed over the bar's WhatsApp chip** | `.st-skip` is absolute in `.st-pin` and **abspos resolves against the padding box** — `top:0` is the border edge, i.e. under the fixed header, not the top of the padded stage. `--pin-top` now feeds both the padding and the button. |
+| **Two columns of dots down the right** | The act rail was vertical at `right:0`, immediately beside `js/lumina.js`'s fixed `#spine`. **Every elevated page carries that spine** — a vertical rail here can never be anything but a second one. The rail now runs along the **foot**. |
+| **Notes panel sitting on the title block** | Both bottom-left. `--sheet-h` is now *enforced* on `.st-sheet` (a real `height`, cells flex-centred so the dividers still run full height) and `.st-read` stacks on top of it by reading the same token. |
+| **Notes panel covering the first of three cards** | The frame is centred in `.st-cam`'s **content** box, so `padding-left:var(--flank-l)` is what moves it clear, and `--flank-l` is derived from `--read-w` so they cannot drift. |
+| **Phone covering the third card, and the rail's labels** | `--flank-r` must be **wider than the phone**, or the phone's right edge lands exactly on the frame's right edge and it overlaps inward by its full width. It is `--phone-w + 28…40px`, and `.st-phone` offsets by `--flank-r - --phone-w + 18px` so it *leans on* the frame's edge by 18px. Both are inside the camera, so the lean survives the zoom. |
+
+A sixth appeared as soon as the flanking was in: **`.st-brand` at `top:50%` reached down into
+the notes panel** by up to 54px at 1280. The left column is a stack of three — board, notes,
+title block — so the board is anchored `top:0`. Anything new on the left goes into that stack.
+
+**`.st-pin::after` is `z-index:1`, behind the stage.** It fades the blueprint grid into the ink;
+at 8 it was a scrim over the whole stage and dimmed the title block and the act rail, which are
+the two things at the foot that have to stay readable.
+
+**The probe for this page measures overlaps, not drivers** — twelve element pairs at seven
+scroll positions across six widths. A driver read cannot see two boxes sharing pixels, and on
+this page that was the entire defect set. If you change any position here, re-run it.
+
+**The intro's instruction is its own element (`#stCue`) with its own text node**, because below
+861px and under reduced motion there is no scroll build and `flat()` rewrites it to *"Brand,
+site and posts — as delivered"*. `setScene()` sets it back, so crossing the breakpoint
+mid-session is correct in both directions. The lede above it deliberately does **not** end in
+"Scroll." — that sentence could not be rewritten without a script editing prose.
 
 ### The shared section vocabulary — do not diverge from it
 
